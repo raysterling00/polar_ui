@@ -1,0 +1,384 @@
+:root {
+	/* color pallete */
+	--sys-first: #f5e6e8;
+	--sys-second: #8ac6d0;
+	--sys-third: #ff3366;
+	--sys-fourth: #141b41;
+	--sys-fifth: #0c111e;
+
+	/* local vars*/
+	--sys-height: 570px;
+	--sys-width: 280px;
+	--sys-radius: 47.5px;
+
+	/* appearance parameters */
+	--sys-blur: 3px;
+	--sys-shadow: 3px 2px 4px 0 #1113;
+
+	--sys-bg: url("./images/wall-01.jpg");
+}
+@font-face {
+	font-family: "ROTHEFIGHT";
+	src: url("./ROTHEFIGHT.woff2");
+}
+@font-face {
+	font-family: "Victory_Striker_Sans";
+	src: url("./Victory Striker Sans Demo.woff2");
+}
+* {
+	box-sizing: border-box;
+	user-select: none;
+}
+/* TODO:
+fix the navbar not blending
+*/
+html {
+	height: 100vh;
+	overflow: hidden;
+}
+body {
+	height: 100vh;
+	background: var(--sys-fifth);
+	color: whitesmoke;
+	display: block;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	text-align: center;
+	margin: 0;
+	font-family: Arial, Verdana;
+}
+#loading_screen {
+	display: none;
+	width: 100vw;
+	height: 100vh;
+}
+#screen {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: var(--sys-width);
+	height: var(--sys-height);
+	border: 2px solid black;
+	/* border-bottom: 7.5px solid black; */
+	outline: 1px solid white;
+	outline-offset: 2px;
+	border-radius: var(--sys-radius);
+	background-image: var(--sys-bg);
+	background-color: #8ac6d0;
+	background-size: cover;
+	background-position: center center;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	isolation: isolate;
+}
+#status {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 30px;
+	background: #6660;
+	z-index: 1000;
+}
+#st_n {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 50%;
+	height: 30px;
+	background: transparent;
+}
+#st_c {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 50%;
+	height: 30px;
+	background: transparent;
+}
+#camera {
+	width: 90px;
+	height: 28px;
+	position: absolute;
+	top: 7.5px;
+	left: 50%;
+	translate: -50%;
+	border-radius: var(--sys-radius);
+	background: #000;
+	z-index: 1000;
+}
+#n_bar {
+	position: absolute;
+	bottom: 7px;
+	left: 50%;
+	translate: -50%;
+	width: 120px;
+	height: 3.25px;
+	border-radius: 400px;
+	background: white;
+	mix-blend-mode: difference !important;
+	opacity: 0;
+	z-index: 1001;
+	transition:
+		opacity 0.2s linear,
+		bottom 0.35s ease;
+	/* isolation: auto; */
+}
+#nav_sect {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 27.5px;
+	background: rgba(255, 255, 255, 0);
+	z-index: 1000;
+	cursor: grab;
+	/* backdrop-filter: blur(10px); */
+}
+#n_bar.hidden {
+	opacity: 0;
+}
+#n_bar.visible {
+	opacity: 1;
+}
+#n_bar.lift {
+	bottom: 20px;
+}
+#s_lock {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: var(--sys-radius);
+	background: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(10px);
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	z-index: 999;
+	transition:
+		top 0.3s ease,
+		backdrop-filter 0.25s ease,
+		background 0.2s ease;
+	/* backdrop-filter: blur(4px); */
+	box-shadow: var(--sys-shadow);
+}
+#s_lock.locked {
+	background: var(--sys-bg);
+	backdrop-filter: blur(0);
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+#s_lock.hidden {
+	top: -100%;
+}
+#h_lo {
+	position: absolute;
+	top: 3%;
+	left: 50%;
+	translate: -50%;
+	font-family: "ROTHEFIGHT";
+	font-size: 140px;
+	text-align: center;
+	mix-blend-mode: difference;
+}
+#d_lo {
+	position: absolute;
+	top: 8%;
+	left: 50%;
+	translate: -50%;
+	font-family: Sans-Serif;
+	font-size: 27.5px;
+	text-align: center;
+	mix-blend-mode: difference;
+}
+#t_swipe {
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	translate: -50%;
+	text-align: center;
+	font-size: 12.5px;
+	opacity: 0;
+}
+#t_swipe.visible {
+	opacity: 1;
+}
+#h_st {
+	position: absolute;
+	top: 10.5px;
+	left: 26px;
+	font-size: 21px;
+	transition: all 0.25s ease;
+	opacity: 1;
+}
+#h_st.hidden {
+	opacity: 0;
+}
+#s_home {
+	display: grid;
+	padding: 20px;
+	width: 100%;
+	height: auto;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+	place-items: center;
+	text-align: center;
+	position: absolute;
+	bottom: 35.5px;
+	box-sizing: border-box;
+}
+.h_icon {
+	width: 50px;
+	height: 50px;
+	border-radius: 12px;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	background: rgba(255, 255, 255, 0.2);
+	backdrop-filter: blur(5px);
+	transition:
+		transform 0.1s ease,
+		filter 0.2s ease;
+	box-shadow: 1px 4px 6px rgba(0, 0, 0, 0.1);
+}
+.h_icon:active {
+	transform: scale(0.95);
+	filter: brightness(0.8);
+}
+
+.app_view {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: var(--sys-fifth); /* O el color que prefieras */
+	z-index: 500;
+	border-radius: var(--sys-radius);
+	transition:
+		transform 0.425s cubic-bezier(0.34, 0, 0.2, 1),
+		opacity 0.3s ease;
+	transform-origin: center; /* Esto se ajustará con JS */
+	overflow: auto;
+	transform: skew(0deg);
+}
+
+.app_view.hidden {
+	opacity: 0;
+	pointer-events: none;
+	
+	transform: scale(0.05) skew(12deg); /* Empieza pequeña */
+}
+
+/* Animación de retroceso para el home */
+#s_home {
+	transition:
+		transform 0.4s ease,
+		opacity 0.4s ease;
+}
+#s_home.zoom-out {
+	transform: scale(0.6);
+	opacity: 0.25;
+}
+
+#w_settings {
+	padding-top: 35px;
+}
+#b_sect {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	right: 21.85px;
+	top: 11px;
+	width: 32.5px;
+	height: 15px;
+	border: 1px solid #374046;
+	border-radius: 3px;
+	background: #84869b11;
+	overflow: hidden;
+}
+#b_ind {
+	height: 100%;
+	width: 0%;
+	background: #fff;
+	transition:
+		width 0.5s ease,
+		background 0.35s cubic-bezier(0.7, 0.11, 0.28, 1.13);
+}
+
+#c_hour {
+	position: absolute;
+	top: 10px;
+	left: 50%;
+	translate: -50%;
+	font-family: "ROTHEFIGHT", Verdana;
+	font-size: 100px;
+}
+#c_date {
+	position: absolute;
+	top: 200px;
+	left: 50%;
+	translate: -50%;
+	font-family: Verdana;
+	font-size: 17.5px;
+}
+#s_w_carr {
+	width: 95%;
+	height: 160px;
+	border-radius: 15px;
+	display: flex;
+	align-items: center;
+	overflow-x: scroll;
+	gap: 12.5px;
+	/* position: absolute;
+	top: unset;
+	left: 50%;
+	translate: -50%;*/
+	border: 2px solid #fff2;
+	background: #fff0;
+}
+#s_w_carr img {
+	width: 90px;
+	height: 150px;
+	border-radius: 20px;
+	object-fit: cover;
+	box-shadow: 2px 2px 3px #00000055;
+}
+.term_header {
+	background: #222;
+	padding: 40px 0 10px;
+	text-align: center;
+	font-size: 12px;
+	font-weight: bold;
+	color: #888;
+}
+.term_content {
+	padding: 20px;
+	color: #0f0;
+	font-family: monospace;
+	font-size: 14px;
+	text-align: left;
+	line-height: 0.2rem;
+}
+.cursor {
+	animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+	50% {
+		opacity: 0;
+	}
+}
+label {
+	width: calc(auto + 30px);
+	height: calc(auto + 10px);
+	padding: 10px;
+	border-radius: 20px;
+	background: white;
+	color: black;
+}

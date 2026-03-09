@@ -1,0 +1,20 @@
+{
+	"name": "PolarUI 26",
+	"short_name": "PolarUI",
+	"start_url": "index.html",
+	"display": "standalone",
+	"background_color": "#888888",
+	"theme_color": "#ff008a",
+	"icons": [
+		{
+			"src": "favicon.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "favicon.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}

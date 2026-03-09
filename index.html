@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="author" content="Ray://Lord" />
+		<title>PolarUI</title>
+		<link rel="stylesheet" href="style.css" />
+		<link rel="icon" href="favicon.png" />
+	</head>
+	<body>
+		<section id="loading_screen">
+			<h2>PolarUI 26.0 Alpha</h2>
+			<span id="loading_text"></span>
+		</section>
+		<main id="screen">
+			<div id="screen_2">
+				<div id="status">
+					<div id="st_n">
+						<span class="h_hm" id="h_st"></span>
+					</div>
+					<div id="st_c">
+						<div id="b_sect">
+							<div id="b_ind"></div>
+						</div>
+					</div>
+				</div>
+				<div id="camera"></div>
+				<div id="n_container">
+					<div id="nav_sect"></div>
+					<div id="n_bar"></div>
+				</div>
+				<!-- -->
+				<section id="s_lock" class="app">
+					<span class="d_us" id="d_lo"></span>
+					<span class="h_hm" id="h_lo"></span>
+					<p id="t_swipe">Swipe handle to unlock</p>
+				</section>
+				<section id="s_home">
+					<img src="images/settings.png" data-app="w_settings" class="h_icon" />
+					<img src="images/clock.png" data-app="w_clock" class="h_icon" />
+					<img src="images/gallery.png" data-app="w_gallery" class="h_icon" />
+					<button id="t_icon" data-app="w_terminal" class="h_icon"></button>
+				</section>
+
+				<section id="app_window" class="app_view hidden"></section>
+				<section id="w_settings" class="app_view hidden">
+					<h2>Settings</h2>
+					<h2>Wallpaper</h2>
+					<div id="s_w_carr">
+						<img src="images/wall-04.jpg" class="img_wall" />
+						<img src="images/wall-05.jpg" class="img_wall" />
+						<img src="images/wall-06.jpg" class="img_wall" />
+						<img src="images/wall-01.jpg" class="img_wall" />
+					</div>
+					<input type="file" accept="image/*" style="display: none" id="w_upload" />
+					<label id="w_button" for="w_upload">Upload Wallpaper</label>
+				</section>
+				<section id="w_clock" class="app_view hidden">
+					<span class="h_hms" id="c_hour"></span>
+					<br />
+					<span class="d_us" id="c_date"></span>
+				</section>
+				<section id="w_gallery" class="app_view hidden"></section>
+				<section id="w_terminal" class="app_view hidden">
+					<div class="term_header">Terminal</div>
+					<div class="term_content">
+						<p>PolarOS v26.0.1 (Alpha)</p>
+						<p>Type 'help' for commands.</p>
+						<p class="prompt">root@polar:~$ <span class="cursor">_</span></p>
+					</div>
+				</section>
+			</div>
+		</main>
+		<script src="main.js"></script>
+	</body>
+</html>
