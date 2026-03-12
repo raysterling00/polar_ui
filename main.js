@@ -366,7 +366,7 @@ $qa(".subapp_exit").forEach((el) => {
 	})
 })
 
-const savedCStyle = localStorage.getItem("polar_cstyle")
+const savedCStyle = localStorage.getItem("polar_cstyle") ?? "exclusion"
 const listCStyle = ["exclusion", "hard-light", "overlay"]
 
 listCStyle.forEach((st) => $("h_lo").classList.remove(st))
