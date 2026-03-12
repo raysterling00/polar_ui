@@ -76,7 +76,7 @@ body {
 	margin: 0;
 	overflow: hidden;
 	isolation: isolate;
-	scale: 0.95;
+	scale: 0.975;
 }
 #status {
 	position: absolute;
