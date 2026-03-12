@@ -43,6 +43,7 @@
 					<img src="" data-app="w_settings" class="h_icon" />
 					<img src="" data-app="w_clock" class="h_icon" />
 					<img src="" data-app="w_none" class="h_icon" />
+					<img src="" data-app="w_none" class="h_icon" />
 					<img src="" data-app="w_terminal" class="h_icon" />
 				</section>
 
@@ -52,15 +53,17 @@
 					<!-- <button class="group_upper">Personalization</button><br />
 					<button class="group_middle">Personalization</button><br />
 					<button class="group_lower">Personalization</button> -->
-					<div class="group_alone sub-sel" data-subapp="w_set_abo">About</div>
+					<div class="group_alone sub-sel" data-subapp="w_set_abo">My Phone</div>
 					<div class="group_upper sub-sel" data-subapp="">Display and Brightness</div>
 					<div class="group_middle sub-sel" data-subapp="w_set_per">Personalization</div>
 					<div class="group_lower sub-sel" data-subapp="">Sound and Haptics</div>
 					<div class="group_alone">Security</div>
+					<div class="group_alone">Accessibility</div>
+					<div class="group_alone">System</div>
 					<section class="subapp hidden" id="w_set_per">
 						<div class="globheader">
 							<button class="subapp_exit" id="suba_ext" data-closes="w_set_per">⇐</button>
-							Personalization
+							<p>Personalization</p>
 						</div>
 						<h2>Wallpaper</h2>
 						<div id="s_w_carr">
@@ -71,11 +74,17 @@
 						</div>
 						<input type="file" accept="image/*" style="display: none" id="w_upload" />
 						<label id="w_button" for="w_upload">Upload Wallpaper</label>
+						<br />
+						<h2>Clock style</h2>
+						<select id="p_cstyle">
+							<option value="exclusion">Color Invert</option>
+							<option value="hard-light">Glass</option>
+						</select>
 					</section>
 					<section class="subapp hidden" id="w_set_abo">
 						<div class="globheader">
 							<button class="subapp_exit" id="suba_ext" data-closes="w_set_abo">⇐</button>
-							About
+							<p>My Phone</p>
 						</div>
 						<p>PolarUI 26.0.3 Alpha</p>
 					</section>

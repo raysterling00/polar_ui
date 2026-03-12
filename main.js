@@ -132,6 +132,7 @@ const showLockScreen = ({ swipeY, reset, success }) => {
 	}
 }
 $("h_st").classList.add("hidden")
+$("s_home").classList.add("zoom-out")
 configureSimpleSwipe({
 	axis: "y",
 	dir: "up",
@@ -167,6 +168,7 @@ configureSimpleSwipe({
 			varlist.locked = false
 			updateLockState()
 			$("h_st").classList.remove("hidden")
+			$("s_home").classList.remove("zoom-out")
 		} else {
 			closeApp()
 		}
@@ -194,6 +196,7 @@ configureSimpleSwipe({
 		varlist.locked = true
 		updateLockState()
 		$("h_st").classList.add("hidden")
+		$("s_home").classList.add("zoom-out")
 	},
 	duringMove: showLockScreen
 })
@@ -361,4 +364,29 @@ $qa(".subapp_exit").forEach((el) => {
 		const shouldopen = el.getAttribute("data-closes")
 		$(shouldopen).classList.add("hidden")
 	})
+})
+
+const savedCStyle = localStorage.getItem("polar_cstyle")
+$("h_lo").classList.remove("exclusion")
+$("h_lo").classList.remove("hard-light")
+$("h_lo").classList.add(savedCStyle)
+$("p_cstyle").value = savedCStyle
+
+$("p_cstyle").addEventListener("change", () => {
+	const cstyle = $("p_cstyle")
+	const h_lo = $("h_lo")
+	switch (cstyle.value) {
+		case "exclusion":
+			$("h_lo").classList.remove("exclusion")
+			$("h_lo").classList.remove("hard-light")
+			$("h_lo").classList.add("exclusion")
+			localStorage.setItem("polar_cstyle", "exclusion")
+			break
+		case "hard-light":
+			$("h_lo").classList.remove("exclusion")
+			$("h_lo").classList.remove("hard-light")
+			$("h_lo").classList.add("hard-light")
+			localStorage.setItem("polar_cstyle", "hard-light")
+			break
+	}
 })
