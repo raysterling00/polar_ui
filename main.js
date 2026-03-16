@@ -101,7 +101,7 @@ const moveLockScreen = ({ swipeY, reset, success }) => {
 	if (success) {
 		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
 		lock.style.top = "-100%"
-		if (navigator.vibrate) navigator.vibrate(10)
+		if (navigator.vibrate) navigator.vibrate(50)
 		return
 	}
 	if (varlist.locked === false) return
@@ -176,6 +176,7 @@ configureSimpleSwipe({
 	startcall: () => {
 		//$("n_bar").classList.add("shrink")
 		$("n_bar").classList.add("visible")
+		navigator.vibrate(5)
 	},
 	duringMove: moveLockScreen,
 	endcall: () => {
