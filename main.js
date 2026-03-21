@@ -275,27 +275,32 @@ const closeApp = () => {
 	})
 }
 
-navigator.getBattery().then((battery) => {
-	updateBatteryStatus = () => {
-		const level = Math.floor(battery.level * 100)
-		$("b_ind").style.width = `${level}%`
-		if (battery.charging) {
-			$("b_ind").style.background = "#50F3A5"
-		} else {
-			if (level <= 15) {
-				$("b_ind").style.background = "#F00"
-			} else if (level <= 50) {
-				$("b_ind").style.background = "#FF0"
+if ("getBattery" in navigator) {
+	navigator.getBattery().then((battery) => {
+		updateBatteryStatus = () => {
+			const level = Math.floor(battery.level * 100)
+			$("b_ind").style.width = `${level}%`
+			if (battery.charging) {
+				$("b_ind").style.background = "#50F3A5"
 			} else {
-				$("b_ind").style.background = "#FFFFFF"
+				if (level <= 15) {
+					$("b_ind").style.background = "#F00"
+				} else if (level <= 50) {
+					$("b_ind").style.background = "#FF0"
+				} else {
+					$("b_ind").style.background = "#FFFFFF"
+				}
 			}
 		}
-	}
-	updateBatteryStatus()
+		updateBatteryStatus()
 
-	battery.addEventListener("levelchange", updateBatteryStatus)
-	battery.addEventListener("chargingchange", updateBatteryStatus)
-})
+		battery.addEventListener("levelchange", updateBatteryStatus)
+		battery.addEventListener("chargingchange", updateBatteryStatus)
+	})
+} else {
+	alert("Battery API no soportada en este navegador.")
+	$("b_ind").style.width = `100%` // Valor por defecto para que no se vea vacío
+}
 
 const updateLockState = () => {
 	const lock = $("s_lock")

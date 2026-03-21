@@ -631,3 +631,10 @@ input[type="radio"]:checked::before {
 	scroll-behavior: smooth;
 	-webkit-overflow-scrolling: touch;
 }
+#s_lock,
+.h_icon,
+.app_view {
+	-webkit-backdrop-filter: blur(7.5px); /* Safari */
+	backdrop-filter: blur(7.5px);
+	will-change: backdrop-filter; /* Ayuda a Firefox a preparar el render */
+}
