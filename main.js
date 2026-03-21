@@ -102,7 +102,7 @@ const moveLockScreen = ({ swipeY, reset, success }) => {
 	}
 	if (success) {
 		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
-		lock.style.top = "-100%"
+		lock.style.top = "-105%"
 		if (navigator.vibrate) navigator.vibrate(50)
 		return
 	}
@@ -118,7 +118,7 @@ const showLockScreen = ({ swipeY, reset, success }) => {
 	if (reset) {
 		if (varlist.locked) return
 		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
-		lock.style.top = "-100%"
+		lock.style.top = "-105%"
 		return
 	}
 	if (success) {
