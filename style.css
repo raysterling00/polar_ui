@@ -15,7 +15,7 @@
 	--sys-blur: 3px;
 	--sys-shadow: 3px 2px 4px 0 #1113;
 
-	--sys-bg: url("./images/wall-01.jpg");
+	--sys-bg: url("./images/wall-01.png");
 
 	--delta-time: 1;
 }
@@ -154,7 +154,7 @@ body {
 }
 #camera {
 	width: 75px;
-	height: 28px;
+	height: 24px;
 	position: absolute;
 	top: 7.5px;
 	/* top: 0; */
@@ -308,7 +308,7 @@ body {
 		filter calc(0.2s * var(--delta-time)) ease,
 		height calc(0.35s * var(--delta-time)) ease,
 		width calc(0.35s * var(--delta-time)) ease;
-	box-shadow: 1px 4px 6px rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
 }
 .h_icon:active {
 	transform: scale(0.95);
