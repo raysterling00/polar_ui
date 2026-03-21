@@ -173,7 +173,7 @@ body {
 	will-change: width;
 }
 #camera.faceid{
-	width: 100px;
+	width: 105px;
 }
 #n_bar {
 	position: absolute;
@@ -367,7 +367,7 @@ body {
 }
 #s_home.zoom-out {
 	transform: scale(0.525);
-	opacity: 0.25;
+	opacity: 0.1;
 	pointer-events: none;
 	/* filter: blur(2.5px); */
 }
