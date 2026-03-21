@@ -271,6 +271,7 @@ const closeApp = () => {
 	const views = $qa(".app_view")
 	const home = $("s_home")
 	views.forEach((view) => {
+		view.style.pointerEvents = "none"
 		view.classList.add("hidden")
 		$("s_home").classList.remove("zoom-out")
 	})
@@ -299,7 +300,7 @@ if ("getBattery" in navigator) {
 		battery.addEventListener("chargingchange", updateBatteryStatus)
 	})
 } else {
-	alert("Battery API is not supported in this browser, this may be because you're on Firefox or Safari. Sorry for the problem.")
+	alert("Battery API is not supported in this browser, this may be because you're on Firefox or Safari. Sorry for the inconvinience.")
 	$("b_ind").style.width = `100%` // Valor por defecto para que no se vea vacío
 }
 
