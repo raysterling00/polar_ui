@@ -393,13 +393,32 @@ $("bright-slider").addEventListener("input", () => {
 
 window.addEventListener("load", () => {
 	setTimeout(() => {
-		$("loading_title").style.scale = "1.25"
-	}, 500)
-	setTimeout(() => {
 		setInterval(() => {
 			// $("loading_title").textContent.slice(1)
 			$("loading_title").textContent = $("loading_title").textContent.slice(0, -1)
 		}, 125)
-	}, 500)
-	setTimeout(() => ($("loading_screen").style.display = "none"), 2750)
+	}, 700)
+	setTimeout(() => {
+		setInterval(() => {
+			$("loading_title").textContent = "PolarUI"
+		}, 1100)
+	}, 1000)
+	randomStartNumber = Math.random() * 8
+	if (randomStartNumber < 2.5) {
+		startupTime = 2500
+	} else {
+		startupTime = randomStartNumber * 1000
+	}
+	console.log(startupTime)
+	setTimeout(() => ($("loading_screen").style.display = "none"), startupTime)
 })
+
+hasSeenSetup = localStorage.getItem("polar_setupseen") ?? false
+setTimeout(() => {
+	if (hasSeenSetup) {
+		subsetup_view.style.top = "150%"
+		subsetup_view.style.opacity = "0"
+		setup_view.style.top = "150%"
+		setup_view.style.opacity = "0"
+	}
+}, 500)

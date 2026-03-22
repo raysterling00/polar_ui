@@ -747,3 +747,57 @@ input[type="range"]::-moz-range-progress {
 	background: var(--sys-second);
 	height: 10px;
 }
+#setup_view {
+	width: 100%;
+	height: 100%;
+	background: #fafafa;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border-radius: var(--sys-radius);
+	z-index: 1500;
+	color: black;
+	transition:
+		top 0.65s ease,
+		opacity 0.25s ease;
+}
+.setup_title {
+	position: absolute;
+	top: 40px;
+	left: 50%;
+	translate: -50%;
+	color: black;
+	width: 100%;
+}
+button.setup_next {
+	width: 200px;
+	height: 50px;
+	background: var(--sys-fourth);
+	border: none;
+	border-radius: 50px;
+	padding: 3.75px;
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	translate: -50%;
+	color: white;
+	font-size: 17px;
+	font-family: "ProductSansMed", Verdana;
+}
+#subsetup_view {
+	width: 100%;
+	height: 100%;
+	background: #e4e4e4;
+	position: absolute;
+	top: 0;
+	left: 100%;
+	border-radius: var(--sys-radius);
+	z-index: 1501;
+	transition:
+		left 0.25s ease,
+		top 0.65s ease,
+		opacity 0.25s ease;
+}
+#subsetup_view.visible {
+	left: 0;
+}

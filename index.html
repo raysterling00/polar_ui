@@ -51,6 +51,14 @@
 				</section>
 
 				<section id="app_window" class="app_view hidden"></section>
+				<section id="setup_view">
+					<h2 class="setup_title">Let's begin the setup</h2>
+					<button class="setup_next" onclick="subsetup_view.classList.add('visible')">Continue</button>
+					<section id="subsetup_view">
+						<h2 class="setup_title">Patch Notes</h2>
+						<button class="setup_next" onclick="subsetup_view.style.top = '150%'; subsetup_view.style.opacity = '0'; setup_view.style.top = '150%'; setup_view.style.opacity = '0'; localStorage.setItem('polar_setupseen', true)">Continue</button>
+					</section>
+				</section>
 				<section id="w_settings" class="app_view hidden">
 					<h2>Settings</h2>
 					<div class="group_alone sub-sel" data-subapp="w_set_abo">My Phone</div>
@@ -111,9 +119,9 @@
 				<section id="w_terminal" class="app_view hidden">
 					<div class="term_header">P-onsole</div>
 					<div class="term_content">
-						<p>PolarOS v26.0.6 Beta</p>
-						<p>Type 'help' for commands.</p>
-						<p class="prompt">device@polar:~$ <span class="cursor">_</span></p>
+						<p>PolarOS v26.0.6 (00017)</p>
+						<p>You currently don't have sudo permits</p>
+						<p class="prompt">user@polar:~$ <span class="cursor">_</span></p>
 					</div>
 				</section>
 				<section id="w_none" class="app_view hidden">none</section>
