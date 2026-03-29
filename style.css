@@ -9,13 +9,15 @@
 	/* local vars*/
 	--sys-height: 570px;
 	--sys-width: 280px;
-	--sys-radius: 50px;
+	--sys-radius: 49.5px;
 
 	/* appearance parameters */
 	--sys-blur: 3px;
 	--sys-shadow: 3px 2px 4px 0 #1113;
 
-	--sys-bg: url("./images/wall-01.png");
+	/*--sys-bg: url("./images/wall-01.png");*/
+	--sys-bg-lock: url("./images/wall-01.png");
+	--sys-bg-home: url("./images/wall-02.png");
 
 	--delta-time: 1;
 }
@@ -68,7 +70,7 @@ body {
 		visibility 0.5s ease;
 }
 #loading_title {
-	scale: 1.6;
+	scale: 1.45;
 	transition:
 		scale 0.55s ease,
 		transform 0.55s ease;
@@ -82,7 +84,7 @@ body {
 	height: var(--sys-height);
 	border: 2px solid black;
 	border-radius: var(--sys-radius);
-	background-image: var(--sys-bg);
+	background-image: var(--sys-bg-home);
 	background-color: #8ac6d0;
 	background-size: cover;
 	background-position: center center;
@@ -229,7 +231,7 @@ body {
 	width: 100%;
 	height: 100%;
 	border-radius: var(--sys-radius);
-	background: rgba(0, 0, 0, 0.4);
+	background: rgba(0, 0, 0, 0.3);
 	backdrop-filter: blur(7.5px);
 	background-size: cover;
 	background-position: center center;
@@ -242,7 +244,7 @@ body {
 	box-shadow: var(--sys-shadow);
 }
 #s_lock.locked {
-	background: var(--sys-bg);
+	background: var(--sys-bg-lock);
 	backdrop-filter: blur(0);
 	background-size: cover;
 	background-position: center center;
@@ -441,7 +443,7 @@ body {
 	padding: 20px;
 	color: #0f0;
 	font-family: monospace;
-	font-size: 12px;
+	font-size: 9px;
 	text-align: left;
 	line-height: 0.11rem;
 }
@@ -885,4 +887,51 @@ button.setup_next {
 	transform: scale(0.98);
 	opacity: 0.5;
 }
-/* hewwooooo */
+
+#dialoguebox {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	bottom: 24px;
+	left: 50%;
+	translate: -50%;
+	width: 90%;
+	height: auto;
+	padding: 5px;
+	background: rgba(200, 200, 200, 0.2);
+	backdrop-filter: blur(7.5px);
+	border: 1px solid #fff1;
+	color: white;
+	border-radius: var(--sys-radius);
+	z-index: 1002;
+	text-align: center;
+	justify-content: center;
+	align-items: center;
+	transition: all 0.25s ease;
+}
+#dialoguebox.hidden {
+	bottom: -5px;
+	opacity: 0;
+	pointer-events: none;
+}
+.dialoguebutton {
+	width: 150px;
+	height: 35px;
+	border-radius: 20px;
+	padding: 5px;
+	background: var(--sys-fourth);
+	color: white;
+	margin: 2px;
+	border: none;
+	transition: all 0.25s ease;
+}
+.dialoguebutton:active {
+	scale: 0.9;
+	background: #444;
+}
+.dialoguebutton.fourth {
+	background: var(--sys-third);
+}
+.dialoguebutton.fourth:active {
+	background: #333;
+}

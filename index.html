@@ -48,6 +48,9 @@
 					<button class="nostyle"><img src="images/app_store.webp" data-app="w_store" class="h_icon" /></button>
 					<button class="nostyle"><img src="images/calc.webp" data-app="w_calc" class="h_icon" /></button>
 					<button class="nostyle"><img src="images/terminal.webp" data-app="w_terminal" class="h_icon" /></button>
+					<button class="nostyle"><img src="" data-app="w_none" class="h_icon" /></button>
+					<button class="nostyle"><img src="" data-app="w_none" class="h_icon" /></button>
+					<button class="nostyle"><img src="" data-app="w_none" class="h_icon" /></button>
 				</section>
 
 				<section id="app_window" class="app_view hidden"></section>
@@ -195,6 +198,14 @@
 				</section>
 				<!-- blank window used as placeholder -->
 				<section id="w_none" class="app_view hidden">none</section>
+				<!-- dislogue box -->
+				<div id="dialoguebox" class="hidden">
+					<span id="dialoguetext">This is a test</span>
+					<button class="dialoguebutton first"></button>
+					<button class="dialoguebutton second"></button>
+					<button class="dialoguebutton third"></button>
+					<button class="dialoguebutton fourth" onclick="hideDialoguePopUp()">Cancel</button>
+				</div>
 			</div>
 		</main>
 		<script src="main.js"></script>

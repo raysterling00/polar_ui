@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id)
+const $q = (id) => document.querySelector(id)
 const $qa = (id) => document.querySelectorAll(id)
 const varlist = {
 	locked: true
@@ -277,8 +278,6 @@ if ("getBattery" in navigator) {
 			} else {
 				if (level <= 15) {
 					$("b_ind").style.background = "#F00"
-				} else if (level <= 50) {
-					$("b_ind").style.background = "#FF0"
 				} else {
 					$("b_ind").style.background = "#FFFFFF"
 				}
@@ -302,11 +301,17 @@ const updateLockState = () => {
 }
 updateLockState()
 
-const setWP = (src) => {
+const setWP = (src, target = "both") => {
 	if (!src) return
 
-	localStorage.setItem("polar_wallpaper", src)
-	document.documentElement.style.setProperty("--sys-bg", `url(${src})`)
+	if (target === "lock" || target === "both") {
+		localStorage.setItem("polar_wp_lock", src)
+		document.documentElement.style.setProperty("--sys-bg-lock", `url(${src})`)
+	}
+	if (target === "home" || target === "both") {
+		localStorage.setItem("polar_wp_home", src)
+		document.documentElement.style.setProperty("--sys-bg-home", `url(${src})`)
+	}
 }
 
 const wallpaperInput = $("w_upload")
@@ -332,7 +337,22 @@ wallpaperInput.addEventListener("change", (e) => {
 
 			const compressed = canvas.toDataURL("image/jpeg", 0.85)
 
-			setWP(compressed)
+			showDialoguePopUp(
+				"Select scope",
+				"Home screen only",
+				() => {
+					setWP(compressed, "home")
+				},
+				"Lock screen only",
+				() => {
+					setWP(compressed, "lock")
+				},
+				"Both screens",
+				() => {
+					setWP(compressed, "lock")
+					setWP(compressed, "home")
+				}
+			)
 		}
 
 		img.src = ev.target.result
@@ -341,15 +361,66 @@ wallpaperInput.addEventListener("change", (e) => {
 	reader.readAsDataURL(file)
 })
 
-const savedWallpaper = localStorage.getItem("polar_wallpaper")
+const savedLock = localStorage.getItem("polar_wp_lock")
+const savedHome = localStorage.getItem("polar_wp_home")
+if (savedLock) setWP(savedLock, "lock")
+if (savedHome) setWP(savedHome, "home")
 
-if (savedWallpaper) {
-	setWP(savedWallpaper)
+const showDialoguePopUp = (title, btn1, cb1, btn2, cb2, btn3, cb3) => {
+	$("dialoguebox").classList.remove("hidden")
+	$("dialoguetext").textContent = title
+
+	if (!btn2) {
+		$q(".dialoguebutton.second").style.display = "none"
+	} else {
+		$q(".dialoguebutton.second").style.display = "block"
+	}
+	if (!btn3) {
+		$q(".dialoguebutton.third").style.display = "none"
+	} else {
+		$q(".dialoguebutton.third").style.display = "block"
+	}
+
+	$q(".dialoguebutton.first").textContent = btn1
+	$q(".dialoguebutton.first").onclick = () => {
+		cb1()
+		hideDialoguePopUp()
+	}
+
+	$q(".dialoguebutton.second").textContent = btn2
+	$q(".dialoguebutton.second").onclick = () => {
+		cb2()
+		hideDialoguePopUp()
+	}
+
+	$q(".dialoguebutton.third").textContent = btn3
+	$q(".dialoguebutton.third").onclick = () => {
+		cb3()
+		hideDialoguePopUp()
+	}
 }
+const hideDialoguePopUp = () => $("dialoguebox").classList.add("hidden")
+
 $qa(".img_wall").forEach((img) => {
 	img.addEventListener("click", () => {
 		const src = img.getAttribute("src")
-		setWP(src)
+		showDialoguePopUp(
+			"Select scope",
+			"Home screen only",
+			() => {
+				setWP(src, "home")
+			},
+			"Lock screen only",
+			() => {
+				setWP(src, "lock")
+			},
+			"Both screens",
+			() => {
+				setWP(src, "lock")
+				setWP(src, "home")
+			}
+		)
+		//setWP(src)
 	})
 })
 
@@ -442,7 +513,7 @@ setTimeout(() => {
 
 let versionCodeName = "Esclera"
 let versionCode = "0025"
-let versionName = "26.0.4"
+let versionName = "26.0.5"
 let versionNameShorthand = "26"
 
 $qa(".vName").forEach((el) => (el.textContent = versionName))
@@ -450,113 +521,102 @@ $qa(".vNameShort").forEach((el) => (el.textContent = versionNameShorthand))
 $qa(".vCode").forEach((el) => (el.textContent = versionCode))
 $qa(".vCodeName").forEach((el) => (el.textContent = versionCodeName))
 
-// code from other repo xdd
-
-const mainDisplay = document.getElementById("mainDisplay")
-const previewDisplay = document.getElementById("previewDisplay")
+// --- Lógica de la Calculadora PolarUI ---
+const mainDisplay = $("mainDisplay")
+const previewDisplay = $("previewDisplay")
 
 let expression = ""
 let justCalculated = false
 
 function formatScreen(str) {
-	return str.replace(/\*/g, "×").replace(/\//g, ":")
+	if (!str) return "0"
+	return str.toString().replace(/\*/g, "×").replace(/\//g, ":")
 }
 
 function safeEval(str) {
 	try {
-		const val = Function("return " + str)()
-		if (!isFinite(val) || isNaN(val)) return null
-		return val
+		// Usamos una función limpia para evaluar la expresión
+		const result = new Function("return " + str)()
+		return result === undefined || isNaN(result) ? null : result
 	} catch {
 		return null
 	}
 }
 
-function updatePreview() {
-	if (justCalculated) {
-		previewDisplay.textContent = ""
-		return
-	}
-	const val = safeEval(expression)
-	previewDisplay.textContent = val !== null ? val : ""
-}
-
-document.querySelectorAll(".calc_btn").forEach((btn) => {
-	btn.onclick = () => {
-		navigator.vibrate(50)
-	}
-})
-
-document.querySelectorAll(".number").forEach((btn) => {
+// Evento para los números
+$qa(".calc_btn.number").forEach((btn) => {
 	btn.onclick = () => {
 		if (justCalculated) {
 			expression = ""
 			justCalculated = false
 		}
-
-		const n = btn.textContent
-
-		expression += n
+		expression += btn.textContent.trim()
 		mainDisplay.textContent = formatScreen(expression)
-		updatePreview()
-		scrollToBottom()
+		const val = safeEval(expression)
+		previewDisplay.textContent = val !== null ? val : ""
+		navigator.vibrate(15)
 	}
 })
 
-document.querySelectorAll(".operator").forEach((btn) => {
+// Evento para los operadores
+$qa(".calc_btn.operator").forEach((btn) => {
 	btn.onclick = () => {
-		let op = btn.dataset.op
+		let op = btn.getAttribute("data-op")
 
 		if (op === "+-") {
-			if (expression && !isNaN(expression)) {
-				expression = String(-Number(expression))
-				mainDisplay.textContent = expression
-				updatePreview()
+			const currentVal = safeEval(expression)
+			if (currentVal !== null) {
+				expression = String(currentVal * -1)
+				mainDisplay.textContent = formatScreen(expression)
 			}
 			return
 		}
 
-		if (!expression) return
+		if (!expression && op !== "-") return // Permitir negativo al inicio
 
-		justCalculated = false
-
-		const last = expression[expression.length - 1]
-		if ("+-*/".includes(last)) {
+		const lastChar = expression.slice(-1)
+		if ("+-*/".includes(lastChar)) {
 			expression = expression.slice(0, -1)
 		}
 
 		expression += op
 		mainDisplay.textContent = formatScreen(expression)
-		updatePreview()
-		scrollToBottom()
+		justCalculated = false
+		navigator.vibrate(15)
 	}
 })
 
-document.querySelector("[data-action='clear']").onclick = () => {
-	expression = ""
-	mainDisplay.textContent = "0"
-	previewDisplay.textContent = ""
-}
+// Botón de borrar (AC)
+$qa("[data-action='clear']").forEach((btn) => {
+	btn.onclick = () => {
+		expression = ""
+		mainDisplay.textContent = "0"
+		previewDisplay.textContent = ""
+		navigator.vibrate(20)
+	}
+})
 
-document.querySelector("[data-action='backspace']").onclick = () => {
-	if (!expression) return
-	expression = expression.slice(0, -1)
-	mainDisplay.textContent = expression ? formatScreen(expression) : "0"
-	updatePreview()
-	scrollToBottom()
-}
-ñ
-document.querySelector("[data-action='equal']").onclick = () => {
-	const result = safeEval(expression)
-	if (result === null) return
+// Botón de retroceso (Backspace)
+$qa("[data-action='backspace']").forEach((btn) => {
+	btn.onclick = () => {
+		expression = expression.slice(0, -1)
+		mainDisplay.textContent = formatScreen(expression)
+		const val = safeEval(expression)
+		previewDisplay.textContent = val !== null ? val : ""
+		navigator.vibrate(10)
+	}
+})
 
-	mainDisplay.textContent = result
-	previewDisplay.textContent = ""
-	expression = String(result)
-	justCalculated = true
-	scrollToBottom()
-}
-
-function scrollToBottom() {
-	mainDisplay.scrollLeft = mainDisplay.scrollWidth
-}
+// Botón igual
+$qa("[data-action='equal']").forEach((btn) => {
+	btn.onclick = () => {
+		const result = safeEval(expression)
+		if (result !== null) {
+			mainDisplay.textContent = result
+			previewDisplay.textContent = ""
+			expression = String(result)
+			justCalculated = true
+			navigator.vibrate(30)
+		}
+	}
+})
