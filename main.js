@@ -2,7 +2,8 @@ const $ = (id) => document.getElementById(id)
 const $q = (id) => document.querySelector(id)
 const $qa = (id) => document.querySelectorAll(id)
 const varlist = {
-	locked: true
+	locked: true,
+	pwd_on: false
 }
 let hidingNav
 let openApps = []
@@ -88,6 +89,10 @@ const configureSimpleSwipe = ({
 	})
 }
 
+let password = localStorage.getItem("polar_pwd") ?? ""
+let enteredPassword = ""
+let canUnlockAnim = false
+
 const moveLockScreen = ({ swipeY, reset, success }) => {
 	const lock = $("s_lock")
 	if (!lock) return
@@ -101,12 +106,40 @@ const moveLockScreen = ({ swipeY, reset, success }) => {
 		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
 		lock.style.top = "-105%"
 		navigator.vibrate(40)
+
+		if (password === "") canUnlockAnim = true
+		if (canUnlockAnim) {
+			$("h_st").classList.remove("hidden")
+			$("s_home").classList.remove("zoom-out")
+		}
 		return
 	}
 	if (varlist.locked === false) return
 	lock.style.transition = "none"
 	if (swipeY <= 2) {
 		lock.style.top = `${swipeY}px`
+	}
+}
+const moveAppWindow = ({ swipeY, reset, success }) => {
+	const app = $qa(".app_view")
+	if (varlist.locked === true) return
+	if (reset) {
+		app.forEach((win) => {
+			win.style.transition = ""
+			win.style.transform = ""
+		})
+	}
+	if (success) {
+		app.forEach((win) => {
+			win.style.transition = ""
+			win.style.transform = ""
+		})
+	}
+	if (swipeY <= 1) {
+		app.forEach((win) => {
+			win.style.transition = "transform 0.1s ease"
+			win.style.transform = `translateY(${swipeY / 6}%)`
+		})
 	}
 }
 const showLockScreen = ({ swipeY, reset, success }) => {
@@ -165,8 +198,17 @@ configureSimpleSwipe({
 		if (varlist.locked === true) {
 			varlist.locked = false
 			updateLockState()
-			$("h_st").classList.remove("hidden")
-			$("s_home").classList.remove("zoom-out")
+			if (canUnlockAnim) {
+				$("h_st").classList.remove("hidden")
+				$("s_home").classList.remove("zoom-out")
+			}
+			if (password === "") {
+				canUnlockAnim = true
+			}
+			if (canUnlockAnim) {
+				$("h_st").classList.remove("hidden")
+				$("s_home").classList.remove("zoom-out")
+			}
 		} else {
 			closeApp()
 		}
@@ -174,9 +216,23 @@ configureSimpleSwipe({
 	startcall: () => {
 		$("n_bar").classList.add("visible")
 		navigator.vibrate(25)
+		if (password === "" && varlist.locked === true) $("s_sublock").classList.add("hidden")
 	},
-	duringMove: moveLockScreen,
+	duringMove: (data) => {
+		moveLockScreen(data)
+		//moveAppWindow(data)
+	},
 	endcall: () => {
+		if (canUnlockAnim) {
+			$("h_st").classList.remove("hidden")
+			$("s_home").classList.remove("zoom-out")
+		}
+		setTimeout(() => {
+			if (canUnlockAnim) {
+				$("h_st").classList.remove("hidden")
+				$("s_home").classList.remove("zoom-out")
+			}
+		}, 20)
 		clearTimeout(hidingNav)
 		hidingNav = setTimeout(() => {
 			$("n_bar").classList.remove("visible")
@@ -339,13 +395,13 @@ wallpaperInput.addEventListener("change", (e) => {
 
 			showDialoguePopUp(
 				"Select scope",
-				"Home screen only",
-				() => {
-					setWP(compressed, "home")
-				},
 				"Lock screen only",
 				() => {
 					setWP(compressed, "lock")
+				},
+				"Home screen only",
+				() => {
+					setWP(compressed, "home")
 				},
 				"Both screens",
 				() => {
@@ -437,8 +493,8 @@ $qa(".subapp_exit").forEach((el) => {
 	})
 })
 
-const savedCStyle = localStorage.getItem("polar_cstyle") ?? "exclusion"
-const listCStyle = ["exclusion", "hard-light", "overlay"]
+const savedCStyle = localStorage.getItem("polar_cstyle") ?? "normal"
+const listCStyle = ["normal", "normal-dark", "exclusion", "hard-light", "overlay"]
 
 listCStyle.forEach((st) => $("h_lo").classList.remove(st))
 $("h_lo").classList.add(savedCStyle)
@@ -512,8 +568,8 @@ setTimeout(() => {
 }, 500)
 
 let versionCodeName = "Esclera"
-let versionCode = "0025"
-let versionName = "26.0.5"
+let versionCode = "0030"
+let versionName = "26.1"
 let versionNameShorthand = "26"
 
 $qa(".vName").forEach((el) => (el.textContent = versionName))
@@ -620,3 +676,71 @@ $qa("[data-action='equal']").forEach((btn) => {
 		}
 	}
 })
+
+$qa(".pwd_btn").forEach((btn) => {
+	btn.addEventListener("click", () => {
+		let digit = btn.getAttribute("data-digit")
+
+		if (digit === "bksp") {
+			enteredPassword = enteredPassword.slice(0, -1)
+		} else if (digit === "check") {
+		} else if (enteredPassword.length < 4) {
+			enteredPassword += digit
+		}
+
+		const dots = $qa(".pwd_dot")
+		dots.forEach((dot, index) => {
+			if (index < enteredPassword.length) {
+				dot.classList.add("filled")
+			} else {
+				dot.classList.remove("filled")
+			}
+		})
+
+		if (enteredPassword.length === 4) {
+			if (enteredPassword === password) {
+				$("s_sublock").classList.add("hidden")
+				canUnlockAnim = true
+				$("h_st").classList.remove("hidden")
+				$("s_home").classList.remove("zoom-out")
+				enteredPassword = ""
+			} else {
+				dots.forEach((dot) => {
+					dot.classList.remove("filled")
+					dot.classList.add("wrong")
+					setTimeout(() => dot.classList.remove("wrong"), 350)
+				})
+
+				$("pwd_dots").style.animation = "backAndForth 0.3s forwards"
+				setTimeout(() => {
+					$("pwd_dots").style.animation = ""
+				}, 350)
+				enteredPassword = ""
+			}
+		}
+	})
+})
+
+$("setpwdtrigger").onclick = () => {
+	let newPassword = prompt("Insert new password (4 digits), or leave empty to clear:")
+
+	if (newPassword === null) return // Cancelado
+
+	if (newPassword.trim() === "") {
+		password = ""
+		localStorage.setItem("polar_pwd", "")
+		console.log("Password cleared")
+		return
+	}
+
+	if (isNaN(newPassword)) {
+		alert("Only numbers accepted")
+	} else if (newPassword.length < 4) {
+		alert("Insufficient digits (need 4)")
+	} else {
+		let appliedPassword = newPassword.substring(0, 4)
+		password = appliedPassword
+		localStorage.setItem("polar_pwd", appliedPassword)
+		console.log("New password set: " + appliedPassword)
+	}
+}

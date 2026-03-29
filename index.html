@@ -42,13 +42,38 @@
 					<span class="h_hm" id="h_lo"></span>
 					<p id="t_swipe">Swipe handle to unlock</p>
 				</section>
+				<section id="s_sublock" class="app">
+					<div id="pwd_dots">
+						<div class="pwd_dot one"></div>
+						<div class="pwd_dot two"></div>
+						<div class="pwd_dot three"></div>
+						<div class="pwd_dot four"></div>
+					</div>
+					<div id="pwd_kbrd" class="num_kbrd">
+						<button class="pwd_btn" data-digit="1">1</button>
+						<button class="pwd_btn" data-digit="2">2</button>
+						<button class="pwd_btn" data-digit="3">3</button>
+
+						<button class="pwd_btn" data-digit="4">4</button>
+						<button class="pwd_btn" data-digit="5">5</button>
+						<button class="pwd_btn" data-digit="6">6</button>
+
+						<button class="pwd_btn" data-digit="7">7</button>
+						<button class="pwd_btn" data-digit="8">8</button>
+						<button class="pwd_btn" data-digit="9">9</button>
+
+						<button class="pwd_btn" data-digit="bksp">x</button>
+						<button class="pwd_btn" data-digit="0">0</button>
+						<button class="pwd_btn" data-digit="check">√</button>
+					</div>
+				</section>
 				<section id="s_home">
 					<button class="nostyle"><img src="images/settings.webp" data-app="w_settings" class="h_icon" /></button>
 					<button class="nostyle"><img src="images/clock.webp" data-app="w_clock" class="h_icon" /></button>
 					<button class="nostyle"><img src="images/app_store.webp" data-app="w_store" class="h_icon" /></button>
 					<button class="nostyle"><img src="images/calc.webp" data-app="w_calc" class="h_icon" /></button>
 					<button class="nostyle"><img src="images/terminal.webp" data-app="w_terminal" class="h_icon" /></button>
-					<button class="nostyle"><img src="" data-app="w_none" class="h_icon" /></button>
+					<button class="nostyle"><img src="images/browser.webp" data-app="w_none" class="h_icon" /></button>
 					<button class="nostyle"><img src="" data-app="w_none" class="h_icon" /></button>
 					<button class="nostyle"><img src="" data-app="w_none" class="h_icon" /></button>
 				</section>
@@ -82,7 +107,7 @@
 					<div class="group_upper sub-sel" data-subapp="w_set_per">Personalization</div>
 					<div class="group_middle sub-sel" data-subapp="w_set_dis">Display and Brightness</div>
 					<div class="group_lower sub-sel" data-subapp="">Sound and Haptics</div>
-					<div class="group_alone">Security</div>
+					<div class="group_alone sub-sel" data-subapp="w_set_sec">Security</div>
 					<div class="group_alone sub-sel">Accessibility</div>
 					<div class="group_alone sub-sel" data-subapp="w_set_sys">System</div>
 					<section class="subapp hidden" id="w_set_per">
@@ -105,6 +130,8 @@
 						<br />
 						<h2>Clock style</h2>
 						<select id="p_cstyle">
+							<option value="normal">Normal</option>
+							<option value="normal-dark">Normal - Dark</option>
 							<option value="exclusion">Color Invert</option>
 							<option value="hard-light">Light Glass</option>
 							<option value="overlay">Clear Glass</option>
@@ -136,6 +163,13 @@
 						<div class="group_lower">Time</div>
 						<div class="group_alone">User Manual</div>
 						<div class="group_alone">Developer Options</div>
+					</section>
+					<section class="subapp hidden" id="w_set_sec">
+						<div class="globheader">
+							<button class="subapp_exit" id="suba_ext" data-closes="w_set_sec">⇐</button>
+							<p>Security</p>
+						</div>
+						<div class="group_alone" id="setpwdtrigger">Set Password</div>
 					</section>
 				</section>
 				<section id="w_clock" class="app_view hidden">

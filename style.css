@@ -7,8 +7,8 @@
 	--sys-fifth: #0c111e;
 
 	/* local vars*/
-	--sys-height: 570px;
-	--sys-width: 280px;
+	--sys-height: 630px;
+	--sys-width: 300px;
 	--sys-radius: 49.5px;
 
 	/* appearance parameters */
@@ -170,7 +170,7 @@ body {
 	isolation: auto;
 }
 #camera {
-	width: 75px;
+	width: 60px;
 	height: 24px;
 	position: absolute;
 	top: 8.25px;
@@ -182,8 +182,8 @@ body {
 	transition: width 0.325s ease;
 	will-change: width;
 }
-#camera.faceid {
-	width: 105px;
+#camera.expand {
+	width: 90px;
 }
 #n_bar {
 	position: absolute;
@@ -254,6 +254,44 @@ body {
 	top: -100%;
 	pointer-events: none;
 }
+#s_sublock {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: var(--sys-radius);
+	z-index: 1998;
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	transition:
+		opacity 0.2s ease,
+		top 0.3s ease;
+}
+#s_sublock::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: var(--sys-bg-lock);
+	border-radius: var(--sys-radius);
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	filter: brightness(0.5);
+	z-index: -1;
+}
+#s_sublock.not(.hidden) {
+	pointer-events: auto;
+}
+#s_sublock.hidden {
+	opacity: 0;
+	pointer-events: none;
+	top: -100%;
+}
 #h_lo {
 	position: absolute;
 	top: 3%;
@@ -275,6 +313,16 @@ body {
 #h_lo.exclusion {
 	mix-blend-mode: exclusion;
 	opacity: 1;
+}
+#h_lo.normal {
+	mix-blend-mode: normal;
+	opacity: 1;
+	filter: brightness(1);
+}
+#h_lo.normal-dark {
+	mix-blend-mode: normal;
+	opacity: 1;
+	color: black;
 }
 #d_lo {
 	position: absolute;
@@ -302,7 +350,7 @@ body {
 #s_home {
 	display: grid;
 	position: absolute;
-	bottom: 35.9px;
+	bottom: 15px;
 	padding: 20px;
 	width: 100%;
 	height: auto;
@@ -344,7 +392,7 @@ body {
 	border-radius: var(--sys-radius);
 	transition:
 		transform calc(0.425s * var(--delta-time)) cubic-bezier(0.34, 0, 0.2, 1),
-		opacity calc(0.345s * var(--delta-time)) ease,
+		opacity calc(0.4s * var(--delta-time)) ease,
 		width calc(0.4s * var(--delta-time)) ease,
 		height calc(0.4s * var(--delta-time)) ease,
 		border-radius calc(0.4s * var(--delta-time)) ease;
@@ -900,7 +948,7 @@ button.setup_next {
 	padding: 5px;
 	background: rgba(200, 200, 200, 0.2);
 	backdrop-filter: blur(7.5px);
-	border: 1px solid #fff1;
+	border: 2px solid #fff2;
 	color: white;
 	border-radius: var(--sys-radius);
 	z-index: 1002;
@@ -915,8 +963,8 @@ button.setup_next {
 	pointer-events: none;
 }
 .dialoguebutton {
-	width: 150px;
-	height: 35px;
+	width: 175px;
+	height: 45px;
 	border-radius: 20px;
 	padding: 5px;
 	background: var(--sys-fourth);
@@ -934,4 +982,69 @@ button.setup_next {
 }
 .dialoguebutton.fourth:active {
 	background: #333;
+}
+
+#pwd_kbrd {
+	position: absolute;
+	top: 220px;
+}
+.num_kbrd {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	position: absolute;
+	left: 50%;
+	translate: -50%;
+	gap: 5px;
+}
+.num_kbrd button {
+	width: 56px;
+	height: 56px;
+	padding: 5px;
+	background: rgba(200, 200, 200, 0.2);
+	backdrop-filter: blur(7.5px);
+	border: 2px solid #fff2;
+	color: white;
+	border-radius: 25px;
+	margin: 2px;
+}
+#pwd_dots {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 7.5px;
+	position: absolute;
+	top: 180px;
+	left: 50%;
+	translate: -50%;
+}
+.pwd_dot {
+	width: 20px;
+	height: 20px;
+	border: 1.5px solid white;
+	border-radius: 109px;
+	mix-blend-mode: difference;
+}
+.pwd_dot.filled {
+	background: white;
+}
+.pwd_dot.wrong {
+	background: red;
+	border: 1.5px solid red;
+}
+@keyframes backAndForth {
+	0% {
+		transform: translateX(0%);
+	}
+	25% {
+		transform: translateX(5%);
+	}
+	50% {
+		transform: translateX(-5%);
+	}
+	75% {
+		transform: translateX(5%);
+	}
+	100% {
+		transform: translateX(0%);
+	}
 }
