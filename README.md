@@ -12,3 +12,8 @@ Mobile OS inspired Web UI feauturing _glassmorphism_ style and active developmen
 <hr>
 ## Knows Problems:
 - Firefox and Safari little incompatibility issues and lag
+
+## Supported platforms/browsers:
+- Safari (Limited compatibility)
+- Chromium based web browsers (Chrome, Edge, Opera...)
+- Android & iOS

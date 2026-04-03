@@ -1,23 +1,80 @@
+/* PolarUI logic javascript file */
+/* 2026 - RayRyxel */
+
+// --- 1. utils and selectors ---
 const $ = (id) => document.getElementById(id)
 const $q = (id) => document.querySelector(id)
 const $qa = (id) => document.querySelectorAll(id)
+
+// --- 2. config and globals ---
 const varlist = {
-	locked: true,
-	pwd_on: false
+	locked: true
 }
 let hidingNav
 let openApps = []
 
 let versionCodeName = "Esclera"
-let versionCode = "0039"
-let versionName = "26.2.1"
+let versionCode = "NP-260403"
+let versionName = "26.2.2"
 let versionNameShorthand = "26"
 
+let password = localStorage.getItem("polar_pwd") ?? ""
+let enteredPassword = ""
+let canUnlockAnim = false
+let lightScheme = localStorage.getItem("polar_darkscheme") === "true"
+
+loa_txt = "PolarUI"
+loa_index = 0
+canEffectStartUp = true
+
+const hasSeenSetup = localStorage.getItem("polar_setupseen") === "true"
+
+const savedLock = localStorage.getItem("polar_wp_lock")
+const savedHome = localStorage.getItem("polar_wp_home")
+
+const savedCStyle = localStorage.getItem("polar_cstyle") ?? "glass"
+const listCStyle = ["normal", "normal-dark", "inversion", "glass"]
+const savedCFont = localStorage.getItem("polar_cfont") ?? "long"
+const listCFont = ["long", "short"]
+
+let currentAudio = new Audio()
+let isPlaying = false
+let volume = 100
+let volumeTimeout
+
+let expression = ""
+let justCalculated = false
+
+const mUpload = $("m_upload")
+const mPlayBtn = $("m_play")
+const camPlayBtn = $("cam_play")
+const mainDisplay = $("mainDisplay")
+const previewDisplay = $("previewDisplay")
+const wallpaperInput = $("w_upload")
+
+// --- 3. ui init ---
 $qa(".vName").forEach((el) => (el.textContent = versionName))
 $qa(".vNameShort").forEach((el) => (el.textContent = versionNameShorthand))
 $qa(".vCode").forEach((el) => (el.textContent = versionCode))
 $qa(".vCodeName").forEach((el) => (el.textContent = versionCodeName))
 
+document.documentElement.classList.toggle("light", lightScheme)
+document.body.classList.toggle("light", lightScheme)
+
+$("s_home").classList.add("zoom-out")
+$("h_fav_bar").classList.add("zoom-out")
+$("n_bar").classList.remove("visible")
+$("h_st").classList.add("hidden")
+
+listCStyle.forEach((st) => $("h_lo").classList.remove(st))
+$("h_lo").classList.add(savedCStyle)
+$("p_cstyle").value = savedCStyle
+
+listCFont.forEach((st) => $("h_lo").classList.remove(st))
+$("h_lo").classList.add(savedCFont)
+$("p_cfont").value = savedCFont
+
+// --- 4. core functions and engines ---
 const configureSimpleSwipe = ({
 	axis,
 	dir,
@@ -89,196 +146,13 @@ const configureSimpleSwipe = ({
 		}
 	}
 
-	;["touchstart", "mousedown"].forEach((ev) => {
-		target.addEventListener(ev, start, { passive: false })
-	})
-	;["touchend", "mouseup"].forEach((ev) => {
-		target.addEventListener(ev, end, { passive: false })
-	})
-	;["touchmove", "mousemove"].forEach((ev) => {
-		window.addEventListener(ev, move)
-	})
+	target.addEventListener("touchstart", start, { passive: false })
+	target.addEventListener("mousedown", start, { passive: false })
+	target.addEventListener("touchend", end, { passive: false })
+	target.addEventListener("mouseup", end, { passive: false })
+	window.addEventListener("touchmove", move, { passive: false })
+	window.addEventListener("mousemove", move, { passive: false })
 }
-
-let password = localStorage.getItem("polar_pwd") ?? ""
-let enteredPassword = ""
-let canUnlockAnim = false
-let lightScheme = localStorage.getItem("polar_darkscheme") === "true"
-document.documentElement.classList.toggle("light", lightScheme)
-document.body.classList.toggle("light", lightScheme)
-
-const moveLockScreen = ({ swipeY, reset, success }) => {
-	const lock = $("s_lock")
-	if (!lock) return
-	if (reset) {
-		if (varlist.locked === false) return
-		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
-		lock.style.top = "0px"
-		return
-	}
-	if (success) {
-		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
-		lock.style.top = "-105%"
-		navigator.vibrate(40)
-
-		if (password === "") canUnlockAnim = true
-		if (canUnlockAnim) {
-			$("h_st").classList.remove("hidden")
-			$("s_home").classList.remove("zoom-out")
-		}
-		return
-	}
-	if (varlist.locked === false) return
-	lock.style.transition = "none"
-	if (swipeY <= 2) {
-		lock.style.top = `${swipeY}px`
-	}
-}
-const moveAppWindow = ({ swipeY, reset, success }) => {
-	const app = $qa(".app_view")
-	if (varlist.locked === true) return
-	if (reset) {
-		app.forEach((win) => {
-			win.style.transition = ""
-			win.style.transform = ""
-		})
-	}
-	if (success) {
-		app.forEach((win) => {
-			win.style.transition = ""
-			win.style.transform = ""
-		})
-	}
-	if (swipeY <= 1) {
-		app.forEach((win) => {
-			win.style.transition = "transform 0.1s ease"
-			win.style.transform = `translateY(${swipeY / 6}%)`
-		})
-	}
-}
-const showLockScreen = ({ swipeY, reset, success }) => {
-	const lock = $("s_lock")
-	if (!lock) return
-	if (reset) {
-		if (varlist.locked) return
-		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
-		lock.style.top = "-105%"
-		return
-	}
-	if (success) {
-		lock.style.transition = "top calc(0.3s * var(--delta-time)) ease"
-		lock.style.top = "0px"
-		return
-	}
-	if (swipeY > 0 && swipeY < 576) {
-		if (varlist.locked) return
-		const screenH = $("screen")?.offsetHeight ?? 570
-		lock.style.transition = "none"
-		lock.style.top = `${-screenH + swipeY}px`
-	}
-}
-$("h_st").classList.add("hidden")
-$("s_home").classList.add("zoom-out")
-configureSimpleSwipe({
-	axis: "y",
-	dir: "up",
-	element: $("s_lock"),
-	threshold: 50,
-	callback: () => {
-		if (!varlist.locked) return
-		clearTimeout(hidingNav)
-		$("n_bar").classList.add("visible")
-		$("t_swipe").classList.add("visible")
-		setTimeout(() => {
-			$("n_bar").classList.add("lift")
-		}, 450)
-		setTimeout(() => {
-			$("n_bar").classList.remove("lift")
-			setTimeout(() => {
-				$("n_bar").classList.remove("visible")
-				$("t_swipe").classList.remove("visible")
-			}, 450)
-		}, 1200)
-	}
-})
-$("n_bar").classList.remove("visible")
-configureSimpleSwipe({
-	axis: "y",
-	dir: "up",
-	element: $("n_container"),
-	threshold: 40,
-	callback: () => {
-		const allApp = $qa(".app")
-		if (varlist.locked === true) {
-			varlist.locked = false
-			updateLockState()
-			if (canUnlockAnim) {
-				$("h_st").classList.remove("hidden")
-				$("s_home").classList.remove("zoom-out")
-			}
-			if (password === "") {
-				canUnlockAnim = true
-			}
-			if (canUnlockAnim) {
-				$("h_st").classList.remove("hidden")
-				$("s_home").classList.remove("zoom-out")
-			}
-		} else {
-			closeApp()
-		}
-	},
-	startcall: () => {
-		$("n_bar").classList.add("visible")
-		navigator.vibrate(25)
-		if (password === "" && varlist.locked === true) $("s_sublock").classList.add("hidden")
-	},
-	duringMove: (data) => {
-		moveLockScreen(data)
-		//moveAppWindow(data)
-	},
-	endcall: () => {
-		if (canUnlockAnim) {
-			$("h_st").classList.remove("hidden")
-			$("s_home").classList.remove("zoom-out")
-		}
-		setTimeout(() => {
-			if (canUnlockAnim) {
-				$("h_st").classList.remove("hidden")
-				$("s_home").classList.remove("zoom-out")
-			}
-		}, 20)
-		clearTimeout(hidingNav)
-		hidingNav = setTimeout(() => {
-			$("n_bar").classList.remove("visible")
-		}, 1205)
-	}
-})
-configureSimpleSwipe({
-	axis: "y",
-	dir: "down",
-	element: $("st_n"),
-	threshold: 50,
-	callback: () => {
-		varlist.locked = true
-		updateLockState()
-		$("h_st").classList.add("hidden")
-		$("s_home").classList.add("zoom-out")
-	},
-	duringMove: showLockScreen
-})
-configureSimpleSwipe({
-	axis: "y",
-	dir: "up",
-	elemeny: $("n_container"),
-	threshold: 120,
-	callback: () => {
-		if ($("recents").classList.includes("hidden")) {
-			$("recents").classList.remove("hidden")
-		} else {
-			$("recents").classList.add("hidden")
-		}
-	}
-})
 
 const updateClock = () => {
 	const curDate = new Date()
@@ -305,52 +179,6 @@ const updateClock = () => {
 }
 setInterval(updateClock, 1000)
 updateClock()
-
-const openApp = (i, w) => {
-	const icon = i.currentTarget
-	const appWin = $(w)
-	const home = $("s_home")
-
-	const rect = icon.getBoundingClientRect()
-	const screenRect = $("screen").getBoundingClientRect()
-
-	const centerX = rect.left + rect.width / 2 - screenRect.left
-	const centerY = rect.top + rect.height / 2 - screenRect.top
-	const screenMiddle = screenRect.width / 2
-
-	appWin.style.transformOrigin = `${centerX}px ${centerY}px`
-
-	const skVal = screenMiddle + centerX >= 300 ? 15 : -15
-	appWin.classList.remove("hidden")
-	appWin.style.pointerEvents = "auto"
-	navigator.vibrate(35)
-	home.classList.add("zoom-out")
-	$("n_bar").classList.add("visible")
-	clearTimeout(hidingNav)
-	hidingNav = setTimeout(() => {
-		$("n_bar").classList.remove("visible")
-	}, 1205)
-	if (!openApps.includes(w)) {
-		openApps.push(w)
-	}
-}
-
-$qa(".h_icon").forEach((icon) => {
-	icon.addEventListener("click", (e) => {
-		const targetAppId = icon.getAttribute("data-app")
-		openApp(e, targetAppId)
-		applyDynamicTilt(e, targetAppId)
-	})
-})
-const closeApp = () => {
-	const views = $qa(".app_view")
-	const home = $("s_home")
-	views.forEach((view) => {
-		view.style.pointerEvents = "none"
-		view.classList.add("hidden")
-		$("s_home").classList.remove("zoom-out")
-	})
-}
 
 if ("getBattery" in navigator) {
 	navigator.getBattery().then((battery) => {
@@ -379,15 +207,92 @@ if ("getBattery" in navigator) {
 	$("b_sect").style.display = "none"
 }
 
+const applyDynamicTilt = (event, elementId) => {
+	const screen = $("screen")
+	const rect = screen.getBoundingClientRect()
+	const centerX = rect.left + rect.width / 2
+	const centerY = rect.top + rect.height / 2
+	const clickX = event.clientX
+	const clickY = event.clientY
+	const targetApp = $(elementId)
+	const isTop = clickY < centerY
+	const isLeft = clickX < centerX
+
+	if ((isTop && isLeft) || (!isTop && !isLeft)) {
+		targetApp.classList.add("tilt-left")
+	} else {
+		targetApp.classList.add("tilt-right")
+	}
+
+	setTimeout(() => {
+		targetApp.classList.remove("tilt-left", "tilt-right")
+	}, 200)
+}
+
+// --- 5. system and screen logic ---
 const updateLockState = () => {
 	const lock = $("s_lock")
 	lock.classList.toggle("locked", varlist.locked)
+	if (lock.classList.contains("locked")) {
+		$("h_st").classList.add("hidden")
+	} else {
+		$("h_st").classList.remove("hidden")
+	}
 }
 updateLockState()
 
+const moveLockScreen = ({ swipeY, reset, success }) => {
+	const lock = $("s_lock")
+	if (!lock) return
+	if (reset) {
+		if (varlist.locked === false) return
+		lock.style.transition = "top 0.3s ease"
+		lock.style.top = "0px"
+		return
+	}
+	if (success) {
+		lock.style.transition = "top 0.3s ease"
+		lock.style.top = "-105%"
+		navigator.vibrate(40)
+
+		if (password === "") canUnlockAnim = true
+		if (canUnlockAnim) {
+			$("s_home").classList.remove("zoom-out")
+			$("h_fav_bar").classList.remove("zoom-out")
+		}
+		return
+	}
+	if (varlist.locked === false) return
+	lock.style.transition = "none"
+	if (swipeY <= 2) {
+		lock.style.top = `${swipeY}px`
+	}
+}
+
+const showLockScreen = ({ swipeY, reset, success }) => {
+	const lock = $("s_lock")
+	if (!lock) return
+	if (reset) {
+		if (varlist.locked) return
+		lock.style.transition = "top 0.3s ease"
+		lock.style.top = "-105%"
+		return
+	}
+	if (success) {
+		lock.style.transition = "top 0.3s ease"
+		lock.style.top = "0px"
+		return
+	}
+	if (swipeY > 0 && swipeY < 576) {
+		if (varlist.locked) return
+		const screenH = $("screen")?.offsetHeight ?? 570
+		lock.style.transition = "none"
+		lock.style.top = `${-screenH + swipeY}px`
+	}
+}
+
 const setWP = (src, target = "both") => {
 	if (!src) return
-
 	if (target === "lock" || target === "both") {
 		localStorage.setItem("polar_wp_lock", src)
 		document.documentElement.style.setProperty("--sys-bg-lock", `url(${src})`)
@@ -398,7 +303,249 @@ const setWP = (src, target = "both") => {
 	}
 }
 
-const wallpaperInput = $("w_upload")
+if (savedLock) setWP(savedLock, "lock")
+if (savedHome) setWP(savedHome, "home")
+
+const showDialoguePopUp = (title, btn1, cb1, btn2, cb2, btn3, cb3) => {
+	$("dialoguebox").classList.remove("hidden")
+	$("dialoguetext").textContent = title
+
+	if (!btn2) {
+		$q(".dialoguebutton.second").style.display = "none"
+	} else {
+		$q(".dialoguebutton.second").style.display = "block"
+	}
+	if (!btn3) {
+		$q(".dialoguebutton.third").style.display = "none"
+	} else {
+		$q(".dialoguebutton.third").style.display = "block"
+	}
+
+	$q(".dialoguebutton.first").textContent = btn1
+	$q(".dialoguebutton.first").onclick = () => {
+		cb1()
+		hideDialoguePopUp()
+	}
+
+	$q(".dialoguebutton.second").textContent = btn2
+	$q(".dialoguebutton.second").onclick = () => {
+		cb2()
+		hideDialoguePopUp()
+	}
+
+	$q(".dialoguebutton.third").textContent = btn3
+	$q(".dialoguebutton.third").onclick = () => {
+		cb3()
+		hideDialoguePopUp()
+	}
+}
+const hideDialoguePopUp = () => $("dialoguebox").classList.add("hidden")
+
+// --- 6. app mngmnt ---
+const openApp = (i, w) => {
+	const icon = i.currentTarget
+	const appWin = $(w)
+	const home = $("s_home")
+	const favs = $("h_fav_bar")
+	const rect = icon.getBoundingClientRect()
+	const screenRect = $("screen").getBoundingClientRect()
+	const centerX = rect.left + rect.width / 2 - screenRect.left
+	const centerY = rect.top + rect.height / 2 - screenRect.top
+
+	appWin.style.transformOrigin = `${centerX}px ${centerY}px`
+
+	appWin.classList.remove("hidden")
+	appWin.style.pointerEvents = "auto"
+	appWin.style.translate = "0% 20%"
+	setTimeout(() => {
+		appWin.style.translate = ""
+	}, 180)
+	navigator.vibrate(35)
+	home.classList.add("zoom-out")
+	favs.classList.add("zoom-out")
+	$("n_bar").classList.add("visible")
+	clearTimeout(hidingNav)
+	hidingNav = setTimeout(() => {
+		$("n_bar").classList.remove("visible")
+	}, 1205)
+	if (!openApps.includes(w)) {
+		openApps.push(w)
+	}
+}
+
+const closeApp = () => {
+	const views = $qa(".app_view")
+	const home = $("s_home")
+	views.forEach((view) => {
+		view.style.pointerEvents = "none"
+		view.classList.add("hidden")
+		$("s_home").classList.remove("zoom-out")
+		$("h_fav_bar").classList.remove("zoom-out")
+	})
+}
+
+// --- 7. swipe gestures ---
+configureSimpleSwipe({
+	axis: "y",
+	dir: "up",
+	element: $("s_lock"),
+	threshold: 50,
+	callback: () => {
+		if (!varlist.locked) return
+		clearTimeout(hidingNav)
+		$("n_bar").classList.add("visible")
+		$("t_swipe").classList.add("visible")
+		setTimeout(() => {
+			$("n_bar").classList.add("lift")
+		}, 450)
+		setTimeout(() => {
+			$("n_bar").classList.remove("lift")
+			setTimeout(() => {
+				$("n_bar").classList.remove("visible")
+				$("t_swipe").classList.remove("visible")
+			}, 450)
+		}, 1200)
+	}
+})
+
+configureSimpleSwipe({
+	axis: "y",
+	dir: "up",
+	element: $("n_container"),
+	threshold: 40,
+	callback: () => {
+		const allApp = $qa(".app")
+		if (varlist.locked === true) {
+			varlist.locked = false
+			updateLockState()
+			if (canUnlockAnim) {
+				$("s_home").classList.remove("zoom-out")
+				$("h_fav_bar").classList.remove("zoom-out")
+			}
+			if (password === "") {
+				canUnlockAnim = true
+			}
+			if (canUnlockAnim) {
+				$("s_home").classList.remove("zoom-out")
+				$("h_fav_bar").classList.remove("zoom-out")
+			}
+		} else {
+			closeApp()
+		}
+	},
+	startcall: () => {
+		$("n_bar").classList.add("visible")
+		navigator.vibrate(25)
+		if (password === "" && varlist.locked === true) $("s_sublock").classList.add("hidden")
+	},
+	duringMove: (data) => {
+		moveLockScreen(data)
+	},
+	endcall: () => {
+		if (canUnlockAnim) {
+			$("s_home").classList.remove("zoom-out")
+			$("h_fav_bar").classList.remove("zoom-out")
+		}
+		setTimeout(() => {
+			if (canUnlockAnim) {
+				$("s_home").classList.remove("zoom-out")
+				$("h_fav_bar").classList.remove("zoom-out")
+			}
+		}, 20)
+		clearTimeout(hidingNav)
+		hidingNav = setTimeout(() => {
+			$("n_bar").classList.remove("visible")
+		}, 1205)
+	}
+})
+
+configureSimpleSwipe({
+	axis: "y",
+	dir: "down",
+	element: $("st_n"),
+	threshold: 50,
+	callback: () => {
+		varlist.locked = true
+		updateLockState()
+		$("s_home").classList.add("zoom-out")
+		$("h_fav_bar").classList.add("zoom-out")
+	},
+	duringMove: showLockScreen
+})
+
+// --- 8. global user events ---
+window.addEventListener("load", () => {
+	const loa_txt = "PolarUI"
+	const titleEl = $("loading_title")
+
+	const deleteEffect = () => {
+		let text = titleEl.textContent
+		const delInterval = setInterval(() => {
+			if (text.length > 0) {
+				text = text.slice(0, -1)
+				titleEl.textContent = text
+			} else {
+				clearInterval(delInterval)
+				setTimeout(typeEffect, 200)
+			}
+		}, 100)
+	}
+
+	const typeEffect = () => {
+		let i = 0
+		const typeInterval = setInterval(() => {
+			if (i < loa_txt.length) {
+				titleEl.textContent += loa_txt[i]
+				i++
+			} else {
+				clearInterval(typeInterval)
+				setTimeout(deleteEffect, 1000)
+			}
+		}, 120)
+	}
+
+	setTimeout(deleteEffect, 800)
+
+	let randomStartNumber = Math.random() * 11
+	let startupTime = randomStartNumber < 2.5 ? 2500 : randomStartNumber * 1000
+
+	setTimeout(() => {
+		$("loading_screen").style.opacity = "0"
+		setTimeout(() => ($("loading_screen").style.display = "none"), 500)
+	}, startupTime)
+})
+
+setTimeout(() => {
+	if (hasSeenSetup) {
+		subsetup_view.style.top = "150%"
+		subsetup_view.style.opacity = "0"
+		setup_view.style.top = "150%"
+		setup_view.style.opacity = "0"
+	}
+}, 500)
+
+$qa(".h_icon").forEach((icon) => {
+	icon.addEventListener("click", (e) => {
+		const targetAppId = icon.getAttribute("data-app")
+		openApp(e, targetAppId)
+		// applyDynamicTilt(e, targetAppId)
+	})
+})
+
+$qa(".sub-sel").forEach((el) => {
+	el.addEventListener("click", () => {
+		const shouldopen = el.getAttribute("data-subapp")
+		$(shouldopen).classList.remove("hidden")
+	})
+})
+
+$qa(".subapp_exit").forEach((el) => {
+	el.addEventListener("click", () => {
+		const shouldopen = el.getAttribute("data-closes")
+		$(shouldopen).classList.add("hidden")
+	})
+})
+
 wallpaperInput.addEventListener("change", (e) => {
 	const file = e.target.files[0]
 	if (!file) return
@@ -445,46 +592,6 @@ wallpaperInput.addEventListener("change", (e) => {
 	reader.readAsDataURL(file)
 })
 
-const savedLock = localStorage.getItem("polar_wp_lock")
-const savedHome = localStorage.getItem("polar_wp_home")
-if (savedLock) setWP(savedLock, "lock")
-if (savedHome) setWP(savedHome, "home")
-
-const showDialoguePopUp = (title, btn1, cb1, btn2, cb2, btn3, cb3) => {
-	$("dialoguebox").classList.remove("hidden")
-	$("dialoguetext").textContent = title
-
-	if (!btn2) {
-		$q(".dialoguebutton.second").style.display = "none"
-	} else {
-		$q(".dialoguebutton.second").style.display = "block"
-	}
-	if (!btn3) {
-		$q(".dialoguebutton.third").style.display = "none"
-	} else {
-		$q(".dialoguebutton.third").style.display = "block"
-	}
-
-	$q(".dialoguebutton.first").textContent = btn1
-	$q(".dialoguebutton.first").onclick = () => {
-		cb1()
-		hideDialoguePopUp()
-	}
-
-	$q(".dialoguebutton.second").textContent = btn2
-	$q(".dialoguebutton.second").onclick = () => {
-		cb2()
-		hideDialoguePopUp()
-	}
-
-	$q(".dialoguebutton.third").textContent = btn3
-	$q(".dialoguebutton.third").onclick = () => {
-		cb3()
-		hideDialoguePopUp()
-	}
-}
-const hideDialoguePopUp = () => $("dialoguebox").classList.add("hidden")
-
 $qa(".img_wall").forEach((img) => {
 	img.addEventListener("click", () => {
 		const src = img.getAttribute("src")
@@ -504,29 +611,8 @@ $qa(".img_wall").forEach((img) => {
 				setWP(src, "home")
 			}
 		)
-		//setWP(src)
 	})
 })
-
-$qa(".sub-sel").forEach((el) => {
-	el.addEventListener("click", () => {
-		const shouldopen = el.getAttribute("data-subapp")
-		$(shouldopen).classList.remove("hidden")
-	})
-})
-$qa(".subapp_exit").forEach((el) => {
-	el.addEventListener("click", () => {
-		const shouldopen = el.getAttribute("data-closes")
-		$(shouldopen).classList.add("hidden")
-	})
-})
-
-const savedCStyle = localStorage.getItem("polar_cstyle") ?? "glass"
-const listCStyle = ["normal", "normal-dark", "inversion", "glass"]
-
-listCStyle.forEach((st) => $("h_lo").classList.remove(st))
-$("h_lo").classList.add(savedCStyle)
-$("p_cstyle").value = savedCStyle
 
 $("p_cstyle").addEventListener("change", (e) => {
 	const newStyle = e.target.value
@@ -534,269 +620,45 @@ $("p_cstyle").addEventListener("change", (e) => {
 	$("h_lo").classList.add(newStyle)
 	localStorage.setItem("polar_cstyle", newStyle)
 })
+$("p_cfont").addEventListener("change", (e) => {
+	const newStyle = e.target.value
+	listCFont.forEach((st) => $("h_lo").classList.remove(st))
+	$("h_lo").classList.add(newStyle)
+	localStorage.setItem("polar_cfont", newStyle)
+})
 
 $("bright-slider").addEventListener("input", () => {
 	$("screen").style.filter = "brightness(" + $("bright-slider").value + ")"
 })
 
-loa_txt = "PolarUI"
-loa_index = 0
-canEffectStartUp = true
-
-window.addEventListener("load", () => {
-	const loa_txt = "PolarUI"
-	const titleEl = $("loading_title")
-
-	const deleteEffect = () => {
-		let text = titleEl.textContent
-		const delInterval = setInterval(() => {
-			if (text.length > 0) {
-				text = text.slice(0, -1)
-				titleEl.textContent = text
-			} else {
-				clearInterval(delInterval)
-				setTimeout(typeEffect, 200)
-			}
-		}, 100)
-	}
-
-	const typeEffect = () => {
-		let i = 0
-		const typeInterval = setInterval(() => {
-			if (i < loa_txt.length) {
-				titleEl.textContent += loa_txt[i]
-				i++
-			} else {
-				clearInterval(typeInterval)
-				setTimeout(deleteEffect, 1000)
-			}
-		}, 120)
-	}
-
-	setTimeout(deleteEffect, 800)
-
-	let randomStartNumber = Math.random() * 11
-	let startupTime = randomStartNumber < 2.5 ? 2500 : randomStartNumber * 1000
-
-	setTimeout(() => {
-		$("loading_screen").style.opacity = "0"
-		setTimeout(() => ($("loading_screen").style.display = "none"), 500)
-	}, startupTime)
-})
-
-const hasSeenSetup = localStorage.getItem("polar_setupseen") === "true"
-
-setTimeout(() => {
-	if (hasSeenSetup) {
-		subsetup_view.style.top = "150%"
-		subsetup_view.style.opacity = "0"
-		setup_view.style.top = "150%"
-		setup_view.style.opacity = "0"
-	}
-}, 500)
-
-// --- Lógica de la Calculadora PolarUI ---
-const mainDisplay = $("mainDisplay")
-const previewDisplay = $("previewDisplay")
-
-let expression = ""
-let justCalculated = false
-
-function formatScreen(str) {
-	if (!str) return "0"
-	return str.toString().replace(/\*/g, "×").replace(/\//g, ":")
-}
-
-function safeEval(str) {
-	try {
-		// Usamos una función limpia para evaluar la expresión
-		const result = new Function("return " + str)()
-		return result === undefined || isNaN(result) ? null : result
-	} catch {
-		return null
-	}
-}
-
-// Evento para los números
-$qa(".calc_btn.number").forEach((btn) => {
-	btn.onclick = () => {
-		if (justCalculated) {
-			expression = ""
-			justCalculated = false
-		}
-		expression += btn.textContent.trim()
-		mainDisplay.textContent = formatScreen(expression)
-		const val = safeEval(expression)
-		previewDisplay.textContent = val !== null ? val : ""
-		navigator.vibrate(15)
-	}
-})
-
-// Evento para los operadores
-$qa(".calc_btn.operator").forEach((btn) => {
-	btn.onclick = () => {
-		let op = btn.getAttribute("data-op")
-
-		if (op === "+-") {
-			const currentVal = safeEval(expression)
-			if (currentVal !== null) {
-				expression = String(currentVal * -1)
-				mainDisplay.textContent = formatScreen(expression)
-			}
-			return
-		}
-
-		if (!expression && op !== "-") return // Permitir negativo al inicio
-
-		const lastChar = expression.slice(-1)
-		if ("+-*/".includes(lastChar)) {
-			expression = expression.slice(0, -1)
-		}
-
-		expression += op
-		mainDisplay.textContent = formatScreen(expression)
-		justCalculated = false
-		navigator.vibrate(15)
-	}
-})
-
-// Botón de borrar (AC)
-$qa("[data-action='clear']").forEach((btn) => {
-	btn.onclick = () => {
-		expression = ""
-		mainDisplay.textContent = "0"
-		previewDisplay.textContent = ""
-		navigator.vibrate(20)
-	}
-})
-
-// Botón de retroceso (Backspace)
-$qa("[data-action='backspace']").forEach((btn) => {
-	btn.onclick = () => {
-		expression = expression.slice(0, -1)
-		mainDisplay.textContent = formatScreen(expression)
-		const val = safeEval(expression)
-		previewDisplay.textContent = val !== null ? val : ""
-		navigator.vibrate(10)
-	}
-})
-
-// Botón igual
-$qa("[data-action='equal']").forEach((btn) => {
-	btn.onclick = () => {
-		const result = safeEval(expression)
-		if (result !== null) {
-			mainDisplay.textContent = result
-			previewDisplay.textContent = ""
-			expression = String(result)
-			justCalculated = true
-			navigator.vibrate(30)
-		}
-	}
-})
-
-$qa(".pwd_btn").forEach((btn) => {
-	btn.addEventListener("click", () => {
-		let digit = btn.getAttribute("data-digit")
-
-		if (digit === "bksp") {
-			enteredPassword = enteredPassword.slice(0, -1)
-		} else if (digit === "check") {
-		} else if (enteredPassword.length < 4) {
-			enteredPassword += digit
-		}
-
-		const dots = $qa(".pwd_dot")
-		dots.forEach((dot, index) => {
-			if (index < enteredPassword.length) {
-				dot.classList.add("filled")
-			} else {
-				dot.classList.remove("filled")
-			}
-		})
-
-		if (enteredPassword.length === 4) {
-			if (enteredPassword === password) {
-				$("s_sublock").classList.add("hidden")
-				canUnlockAnim = true
-				$("h_st").classList.remove("hidden")
-				$("s_home").classList.remove("zoom-out")
-				enteredPassword = ""
-			} else {
-				dots.forEach((dot) => {
-					dot.classList.remove("filled")
-					dot.classList.add("wrong")
-					setTimeout(() => dot.classList.remove("wrong"), 350)
-				})
-
-				navigator.vibrate(100)
-				$("pwd_dots").style.animation = "backAndForth 0.3s forwards"
-				setTimeout(() => {
-					$("pwd_dots").style.animation = ""
-				}, 350)
-				enteredPassword = ""
-			}
-		}
-	})
-})
-
-$("setpwdtrigger").onclick = () => {
-	let newPassword = prompt("Insert new password (4 digits), or leave empty to clear:")
-
-	if (newPassword === null) return
-
-	if (newPassword.trim() === "") {
-		password = ""
-		localStorage.setItem("polar_pwd", "")
-		console.log("Password cleared")
-		return
-	}
-
-	if (isNaN(newPassword)) {
-		alert("Only numbers accepted")
-	} else if (newPassword.length < 4) {
-		alert("Insufficient digits (need 4)")
-	} else {
-		let appliedPassword = newPassword.substring(0, 4)
-		password = appliedPassword
-		localStorage.setItem("polar_pwd", appliedPassword)
-		console.log("New password set: " + appliedPassword)
-	}
-}
 $("schemebutton").onclick = () => {
 	lightScheme = !lightScheme
 	document.documentElement.classList.toggle("light", lightScheme)
 	document.body.classList.toggle("light", lightScheme)
 	localStorage.setItem("polar_darkscheme", lightScheme)
 }
+
 $("pwr_btn").onclick = () => {
 	const isOff = !$("s_black").classList.contains("hidden")
 
 	if (isOff) {
-		// --- DESPERTAR ---
 		$("s_black").classList.add("hidden")
 		navigator.vibrate(20)
 	} else {
-		// --- APAGAR Y BLOQUEAR ---
 		varlist.locked = true
 		updateLockState()
 
-		// Escondemos UI de la pantalla de inicio
-		$("h_st").classList.add("hidden")
 		$("s_home").classList.add("zoom-out")
+		$("h_fav_bar").classList.add("zoom-out")
 
-		// Resetear estados de desbloqueo
 		canUnlockAnim = false
 
-		// Si hay contraseña, preparar el teclado numérico
 		if (password !== "") {
 			$("s_sublock").classList.remove("hidden")
-			// Limpiar puntos de password anterior
 			$qa(".pwd_dot").forEach((dot) => dot.classList.remove("filled"))
 			enteredPassword = ""
 		}
 
-		// Mostrar pantalla de bloqueo y overlay negro
 		$("s_lock").style.top = "0px"
 		$("s_black").classList.remove("hidden")
 
@@ -804,47 +666,6 @@ $("pwr_btn").onclick = () => {
 	}
 }
 
-// Variables nuevas
-let currentAudio = new Audio()
-let isPlaying = false
-
-const mUpload = $("m_upload")
-const mPlayBtn = $("m_play")
-const camPlayBtn = $("cam_play")
-
-mUpload.addEventListener("change", (e) => {
-	const file = e.target.files[0]
-	if (!file) return
-
-	const audioUrl = URL.createObjectURL(file)
-	currentAudio.src = audioUrl
-
-	$("track_name").textContent = file.name
-	$("cam_track").textContent = file.name
-
-	$("cam_content").classList.remove("hidden")
-	//$("camera").classList.add("expanded")
-})
-
-const togglePlay = () => {
-	if (currentAudio.paused) {
-		currentAudio.play()
-		mPlayBtn.textContent = "❚❚"
-		camPlayBtn.textContent = "❚❚"
-		$("camera").classList.add("expanded")
-	} else {
-		currentAudio.pause()
-		mPlayBtn.textContent = "▶"
-		camPlayBtn.textContent = "▶︎"
-		$("camera").classList.remove("expanded")
-	}
-}
-
-mPlayBtn.onclick = togglePlay
-camPlayBtn.onclick = togglePlay
-
-let volume = 100
-let volumeTimeout
 const updateVolumeUI = () => {
 	volume = Math.max(0, Math.min(100, volume))
 	const audioLevel = volume / 100
@@ -873,37 +694,192 @@ $("vo2_btn").addEventListener("click", () => {
 	navigator.vibrate(10)
 })
 
+$("setpwdtrigger").onclick = () => {
+	let newPassword = prompt("Insert new password (4 digits), or leave empty to clear:")
 
-const applyDynamicTilt = (event, elementId) => {
-	const screen = $("screen")
-	const rect = screen.getBoundingClientRect()
+	if (newPassword === null) return
 
-	// Centro de la pantalla
-	const centerX = rect.left + rect.width / 2
-	const centerY = rect.top + rect.height / 2
-
-	// Coordenadas del clic
-	const clickX = event.clientX
-	const clickY = event.clientY
-
-	const targetApp = $(elementId)
-
-	// Lógica de cuadrantes
-	// Si (arriba y izquierda) O (abajo y derecha) -> Tilt Left
-	// Si (arriba y derecha) O (abajo y izquierda) -> Tilt Right
-
-	const isTop = clickY < centerY
-	const isLeft = clickX < centerX
-
-	if ((isTop && isLeft) || (!isTop && !isLeft)) {
-		targetApp.classList.add("tilt-left")
-	} else {
-		targetApp.classList.add("tilt-right")
+	if (newPassword.trim() === "") {
+		password = ""
+		localStorage.setItem("polar_pwd", "")
+		console.log("Password cleared")
+		return
 	}
 
-	// Quitar el tilt después de que termine la animación de apertura
-	// Ajusta el tiempo (400ms) según la duración de tu animación en CSS
-	setTimeout(() => {
-		targetApp.classList.remove("tilt-left", "tilt-right")
-	}, 200)
+	if (isNaN(newPassword)) {
+		alert("Only numbers accepted")
+	} else if (newPassword.length < 4) {
+		alert("Insufficient digits (need 4)")
+	} else {
+		let appliedPassword = newPassword.substring(0, 4)
+		password = appliedPassword
+		localStorage.setItem("polar_pwd", appliedPassword)
+		console.log("New password set: " + appliedPassword)
+	}
 }
+
+$qa(".pwd_btn").forEach((btn) => {
+	btn.addEventListener("click", () => {
+		let digit = btn.getAttribute("data-digit")
+
+		if (digit === "bksp") {
+			enteredPassword = enteredPassword.slice(0, -1)
+		} else if (digit === "check") {
+		} else if (enteredPassword.length < 4) {
+			enteredPassword += digit
+		}
+
+		const dots = $qa(".pwd_dot")
+		dots.forEach((dot, index) => {
+			if (index < enteredPassword.length) {
+				dot.classList.add("filled")
+			} else {
+				dot.classList.remove("filled")
+			}
+		})
+
+		if (enteredPassword.length === 4) {
+			if (enteredPassword === password) {
+				$("s_sublock").classList.add("hidden")
+				canUnlockAnim = true
+				$("s_home").classList.remove("zoom-out")
+				$("h_fav_bar").classList.remove("zoom-out")
+				enteredPassword = ""
+			} else {
+				dots.forEach((dot) => {
+					dot.classList.remove("filled")
+					dot.classList.add("wrong")
+					setTimeout(() => dot.classList.remove("wrong"), 350)
+				})
+
+				navigator.vibrate(100)
+				$("pwd_dots").style.animation = "backAndForth 0.3s forwards"
+				setTimeout(() => {
+					$("pwd_dots").style.animation = ""
+				}, 350)
+				enteredPassword = ""
+			}
+		}
+	})
+})
+
+// --- 9. especific modules ---
+
+// --- calc  ---
+function formatScreen(str) {
+	if (!str) return "0"
+	return str.toString().replace(/\*/g, "×").replace(/\//g, ":")
+}
+
+function safeEval(str) {
+	try {
+		const result = new Function("return " + str)()
+		return result === undefined || isNaN(result) ? null : result
+	} catch {
+		return null
+	}
+}
+
+$qa(".calc_btn.number").forEach((btn) => {
+	btn.onclick = () => {
+		if (justCalculated) {
+			expression = ""
+			justCalculated = false
+		}
+		expression += btn.textContent.trim()
+		mainDisplay.textContent = formatScreen(expression)
+		const val = safeEval(expression)
+		previewDisplay.textContent = val !== null ? val : ""
+		navigator.vibrate(15)
+	}
+})
+
+$qa(".calc_btn.operator").forEach((btn) => {
+	btn.onclick = () => {
+		let op = btn.getAttribute("data-op")
+
+		if (op === "+-") {
+			const currentVal = safeEval(expression)
+			if (currentVal !== null) {
+				expression = String(currentVal * -1)
+				mainDisplay.textContent = formatScreen(expression)
+			}
+			return
+		}
+
+		if (!expression && op !== "-") return
+
+		const lastChar = expression.slice(-1)
+		if ("+-*/".includes(lastChar)) {
+			expression = expression.slice(0, -1)
+		}
+
+		expression += op
+		mainDisplay.textContent = formatScreen(expression)
+		justCalculated = false
+		navigator.vibrate(15)
+	}
+})
+
+$qa("[data-action='clear']").forEach((btn) => {
+	btn.onclick = () => {
+		expression = ""
+		mainDisplay.textContent = "0"
+		previewDisplay.textContent = ""
+		navigator.vibrate(20)
+	}
+})
+
+$qa("[data-action='backspace']").forEach((btn) => {
+	btn.onclick = () => {
+		expression = expression.slice(0, -1)
+		mainDisplay.textContent = formatScreen(expression)
+		const val = safeEval(expression)
+		previewDisplay.textContent = val !== null ? val : ""
+		navigator.vibrate(10)
+	}
+})
+
+$qa("[data-action='equal']").forEach((btn) => {
+	btn.onclick = () => {
+		const result = safeEval(expression)
+		if (result !== null) {
+			mainDisplay.textContent = result
+			previewDisplay.textContent = ""
+			expression = String(result)
+			justCalculated = true
+			navigator.vibrate(30)
+		}
+	}
+})
+
+// --- music player logic ---
+mUpload.addEventListener("change", (e) => {
+	const file = e.target.files[0]
+	if (!file) return
+
+	const audioUrl = URL.createObjectURL(file)
+	currentAudio.src = audioUrl
+
+	$("track_name").textContent = file.name
+	$("cam_track").textContent = file.name
+
+	$("cam_content").classList.remove("hidden")
+})
+
+const togglePlay = () => {
+	if (currentAudio.paused) {
+		currentAudio.play()
+		mPlayBtn.textContent = "❚❚"
+		camPlayBtn.textContent = "❚❚"
+		$("camera").classList.add("expanded")
+	} else {
+		currentAudio.pause()
+		mPlayBtn.textContent = "▶"
+		camPlayBtn.textContent = "▶︎"
+		$("camera").classList.remove("expanded")
+	}
+}
+
+mPlayBtn.onclick = togglePlay
+camPlayBtn.onclick = togglePlay

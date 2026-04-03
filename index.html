@@ -4,7 +4,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="author" content="RaySterling" />
-		<meta name="description" content="Mobile OS inspired Web UI with subtle translucency" />
+		<meta name="description" content="Mobile OS inspired Web UI with subtle translucency effects" />
 		<title>PolarUI</title>
 		<link rel="stylesheet" href="style.css" />
 		<link rel="icon" href="favicon.png" />
@@ -18,7 +18,7 @@
 			<main id="screen">
 				<div id="screen_2">
 					<section id="s_black" class="hidden"></section>
-					<div id="volume_bar" class="hidden">
+					<div id="volume_bar" class="hidden lglass">
 						<div id="volume_slider"></div>
 					</div>
 					<div id="status">
@@ -35,7 +35,7 @@
 					</div>
 					<div id="camera">
 						<div id="cam_content" class="hidden" style="display: none">
-							<span id="cam_track">Salsa Mix...</span>
+							<span id="cam_track"></span>
 							<button id="cam_play">▶</button>
 						</div>
 					</div>
@@ -63,35 +63,39 @@
 							<div class="pwd_dot four"></div>
 						</div>
 						<div id="pwd_kbrd" class="num_kbrd">
-							<button class="pwd_btn" data-digit="1">1</button>
-							<button class="pwd_btn" data-digit="2">2</button>
-							<button class="pwd_btn" data-digit="3">3</button>
+							<button class="pwd_btn lglass" data-digit="1">1</button>
+							<button class="pwd_btn lglass" data-digit="2">2</button>
+							<button class="pwd_btn lglass" data-digit="3">3</button>
 
-							<button class="pwd_btn" data-digit="4">4</button>
-							<button class="pwd_btn" data-digit="5">5</button>
-							<button class="pwd_btn" data-digit="6">6</button>
+							<button class="pwd_btn lglass" data-digit="4">4</button>
+							<button class="pwd_btn lglass" data-digit="5">5</button>
+							<button class="pwd_btn lglass" data-digit="6">6</button>
 
-							<button class="pwd_btn" data-digit="7">7</button>
-							<button class="pwd_btn" data-digit="8">8</button>
-							<button class="pwd_btn" data-digit="9">9</button>
+							<button class="pwd_btn lglass" data-digit="7">7</button>
+							<button class="pwd_btn lglass" data-digit="8">8</button>
+							<button class="pwd_btn lglass" data-digit="9">9</button>
 
-							<button class="pwd_btn" data-digit="bksp">x</button>
-							<button class="pwd_btn" data-digit="0">0</button>
-							<button class="pwd_btn" data-digit="check">√</button>
+							<button class="pwd_btn lglass" data-digit="bksp">x</button>
+							<button class="pwd_btn lglass" data-digit="0">0</button>
+							<button class="pwd_btn lglass" data-digit="check">√</button>
 						</div>
 					</section>
-					<section id="recents" class="hidden">
-						<p>No apps open</p>
-					</section>
 					<section id="s_home">
+						<button class="nostyle"><img src="images/terminal.webp" data-app="w_terminal" class="h_icon" /></button>
+						<button class="nostyle"><img src="images/browser.webp" data-app="w_none" class="h_icon" /></button>
+						<button class="nostyle"><img src="images/music.webp" data-app="w_music" class="h_icon" /></button>
+						<button class="nostyle"><img src="images/empty.png" data-app="w_none" class="h_icon" /></button>
+
+						<button class="nostyle"><img src="images/empty.png" data-app="w_none" class="h_icon" /></button>
+						<button class="nostyle"><img src="images/empty.png" data-app="w_none" class="h_icon" /></button>
+						<button class="nostyle"><img src="images/empty.png" data-app="w_none" class="h_icon" /></button>
+						<button class="nostyle"><img src="images/empty.png" data-app="w_none" class="h_icon" /></button>
+					</section>
+					<section id="h_fav_bar" class="lglass">
 						<button class="nostyle"><img src="images/settings.webp" data-app="w_settings" class="h_icon" /></button>
 						<button class="nostyle"><img src="images/clock.webp" data-app="w_clock" class="h_icon" /></button>
 						<button class="nostyle"><img src="images/app_store.webp" data-app="w_store" class="h_icon" /></button>
 						<button class="nostyle"><img src="images/calc.webp" data-app="w_calc" class="h_icon" /></button>
-						<button class="nostyle"><img src="images/terminal.webp" data-app="w_terminal" class="h_icon" /></button>
-						<button class="nostyle"><img src="images/browser.webp" data-app="w_none" class="h_icon" /></button>
-						<button class="nostyle"><img src="images/music.webp" data-app="w_music" class="h_icon" /></button>
-						<button class="nostyle"><img src="" data-app="w_none" class="h_icon" /></button>
 					</section>
 
 					<section id="app_window" class="app_view hidden"></section>
@@ -103,7 +107,7 @@
 							<h2 class="setup_title">Patch Notes</h2>
 							<p class="setuptext">
 								This is just a webpage resembling a mobile OS interface. This doesn't belong or associates with any trademark or
-								company.
+								company. If you're using a forked version of the project, ask the forker to keep it updated.
 							</p>
 							<button
 								class="setup_next"
@@ -153,13 +157,22 @@
 							<input type="file" accept="image/*" style="display: none" id="w_upload" />
 							<label id="w_button" class="styled" for="w_upload">Upload Wallpaper</label>
 							<br />
-							<h2>Clock style</h2>
-							<select id="p_cstyle">
-								<option value="glass">Glass</o>
-								<option value="normal">Normal</option>
-								<option value="normal-dark">Normal - Dark</option>
-								<option value="inversion">Color Inversion</option>
-							</select>
+							<div class="flex row center">
+								<label class="big">Clock style</label>
+								<select id="p_cstyle">
+									<option value="glass">Glass</option>
+									<option value="normal">Normal</option>
+									<option value="normal-dark">Normal - Dark</option>
+									<option value="inversion">Color Inversion</option>
+								</select>
+							</div>
+							<div class="flex row center">
+								<label class="big">Clock font</label>
+								<select id="p_cfont">
+									<option value="long">Long</option>
+									<option value="short">Short</option>
+								</select>
+							</div>
 						</section>
 						<section class="subapp hidden" id="w_set_abo">
 							<div class="globheader">
@@ -278,7 +291,7 @@
 					<!-- blank window used as placeholder -->
 					<section id="w_none" class="app_view hidden">none</section>
 					<!-- dislogue box -->
-					<div id="dialoguebox" class="hidden">
+					<div id="dialoguebox" class="hidden lglass">
 						<span id="dialoguetext">This is a test</span>
 						<button class="dialoguebutton first"></button>
 						<button class="dialoguebutton second"></button>
